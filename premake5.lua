@@ -224,7 +224,7 @@
 
 		filter "system:linux or bsd or hurd"
 			defines     { "LUA_USE_POSIX", "LUA_USE_DLOPEN" }
-			links       { "m" }
+			links       { "m", "pthread", "ssl", "crypto" }
 			linkoptions { "-rdynamic" }
 
 		filter "system:linux or hurd"
@@ -237,7 +237,7 @@
 
 		filter "system:macosx"
 			defines     { "LUA_USE_MACOSX" }
-			links       { "CoreServices.framework", "Foundation.framework", "Security.framework", "readline" }
+			links       { "CoreServices.framework", "Foundation.framework", "Security.framework", "readline", "SystemConfiguration.framework", "ssl", "crypto" }
 
 		filter { "system:macosx", "action:gmake" }
 			toolset "clang"
