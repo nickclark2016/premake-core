@@ -20,6 +20,6 @@ function GmakeProjConfigurationLinkflagsTests.DefaultLinkFlags()
 	proj.linkFlags(cfg)
 
 	test.capture[[
-ALL_LDFLAGS += -m64 -L/usr/lib64
+ALL_LDFLAGS = $(LDFLAGS) -m64
 	]]
 end

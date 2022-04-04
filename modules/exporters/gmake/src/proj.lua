@@ -22,6 +22,7 @@ proj.elements = {
 			proj.verbosity,
 			proj.phonies,
 			proj.shellType,
+			proj.defaultSystem,
 			proj.defines,
 			proj.includeDirs,
 			proj.targetDir,
@@ -31,6 +32,7 @@ proj.elements = {
 			proj.cFlags,
 			proj.cxxFlags,
 			proj.linkFlags,
+			proj.linkDirectories,
 			proj.configurations,
 			proj.linkCmd,
 			proj.objects,
@@ -54,6 +56,7 @@ proj.elements = {
 			proj.cxxFlags,
 			proj.includeDirs,
 			proj.linkFlags,
+			proj.linkDirectories,
 			proj.configBuildCommands
 		}
 	end
@@ -120,6 +123,40 @@ end
 
 
 ---
+-- Prints the default system information for the project.
+--
+-- @param prj
+--  project to print defaults for
+---
+function proj.defaultSystem(prj)
+	wl('ifndef system')
+	export.indent()
+	wl('ifeq ($(SHELLTYPE), posix)')
+	export.indent()
+	wl('UNAME_S := $(shell uname -s)')
+	wl('ifeq (UNAME_S, Linux)')
+	export.indent()
+	wl('system = linux')
+	export.outdent()
+	wl('endif')
+	wl('ifeq (UNAME_S, Darwin)')
+	export.indent()
+	wl('system = osx')
+	export.outdent()
+	wl('endif')
+	export.outdent()
+	wl('else')
+	export.indent()
+	wl('system = windows')
+	export.outdent()
+	wl('endif')
+	export.outdent()
+	wl('endif')
+	wl()
+end
+
+
+---
 -- Prints verbosity flags to the makefile.
 --
 -- @param prj
@@ -159,25 +196,17 @@ end
 --  project to print include directories for
 ---
 function proj.includeDirs(prj)
+	local includes = prj.generatedFlags.includes
 	if isProject(prj) then
-		local includeDirs = prj.includeDirs
-		if includeDirs ~= nil and #includeDirs > 0 then
-			local includes = table.map(includeDirs, function(key, value)
-				return '-I' .. path.getRelative(prj.location, value)
-			end)
-
+		if includes ~= nil and #includes > 0 then
 			wl('INCLUDES = %s', table.concat(includes, ' '))
 		else
 			wl('INCLUDES =')
 		end
 	else
 		local cfg = prj
-		local configIncludeDirs = cfg.includeDirs
-		if configIncludeDirs ~= nil and #configIncludeDirs > 0 then
-			local includeDirString = table.concat(table.map(configIncludeDirs, function(key, value)
-				local relative = path.getRelative(cfg.project.location, value)
-				return '-I' .. relative
-			end), ' ')
+		if includes ~= nil and #includes > 0 then
+			local includeDirString = table.concat(includes)
 
 			wl('INCLUDES += %s', includeDirString)
 		end
@@ -192,9 +221,9 @@ end
 --  project to print defines of
 ---
 function proj.defines(prj)
-	local defs = proj.impl.definesString(prj)
-	if defs ~= nil then
-		wl('DEFINES += %s', defs)
+	local defs = prj.generatedFlags.defines
+	if #defs > 0 then
+		wl('DEFINES += %s', table.concat(defs, ' '))
 	else
 		wl('DEFINES +=')
 	end
@@ -349,24 +378,24 @@ end
 --  project to print linker flags for
 ---
 function proj.linkFlags(prj)
-	if isProject(prj) then
-		local toolset = prj.linker
-		local flags = toolset.getLinkerFlags(prj)
+	local flags = prj.generatedFlags.linkerFlags
 
-		if #flags > 0 then
-			wl('ALL_LDFLAGS = $(LDFLAGS) %s', table.concat(flags, ' '))
-		else
-			wl('ALL_LDFLAGS = $(LDFLAGS)')
-		end
+	if #flags > 0 then
+		wl('ALL_LDFLAGS = $(LDFLAGS) %s', table.concat(flags, ' '))
 	else
-		local cfg = prj
-		local toolset = cfg.linker
-		local flags = toolset.getLinkerFlags(cfg)
-
-		if #flags then
-			wl('ALL_LDFLAGS += %s', table.concat(flags, ' '))
-		end
+		wl('ALL_LDFLAGS = $(LDFLAGS)')
 	end
+end
+
+
+function proj.linkDirectories(prj)
+	local systemLinkFlags = prj.generatedFlags.systemLinkDirs
+
+	wl('ifneq ($(system), osx)')
+	export.indent()
+	wl('ALL_LDFLAGS += %s', table.concat(systemLinkFlags, ' '))
+	export.outdent()
+	wl('endif')
 end
 
 
@@ -612,25 +641,6 @@ function proj.fileRules(prj)
 	end
 
 	wl()
-end
-
-
----
--- Exports defines to a string
---
--- @param this
---  value to export defines of
----
-function proj.impl.definesString(this)
-	local defs = this.defines
-	if defs ~= nil and #defs > 0 then
-		local defines = table.map(defs, function(key, value)
-			return '-D' .. value
-		end)
-		return table.concat(defines, ' ')
-	else
-		return nil
-	end
 end
 
 

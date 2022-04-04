@@ -19,7 +19,7 @@ const char* pmk_locateModule(char* result, lua_State* L, const char* moduleName)
 		"core/modules/?/?.lua",
 		"?/?.lua",
 		"modules/exporters/?/?.lua",
-		"modules/toolsets/?/?.lua"
+		"modules/toolsets/?/?.lua",
 		"?.lua",
 		"modules/?.lua",
 		NULL

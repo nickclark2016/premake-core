@@ -6,6 +6,7 @@ local dom = require('dom')
 local path = require('path')
 local premake = require('premake')
 local State = require('state')
+local Toolset = require('toolset')
 
 local gmake = {}
 
@@ -33,9 +34,9 @@ gmake.toolsets = {
 		gcc = {
 			getCFlags = function(cfg)
 				local flags = {}
-				if cfg.gmake_architecture == 'x86_64' then
+				if cfg.architecture == 'x86_64' then
 					table.insert(flags, '-m64')
-				elseif cfg.gmake_architecture == 'x86' then
+				elseif cfg.architecture == 'x86' then
 					table.insert(flags, '-m32')
 				end
 				return flags
@@ -156,13 +157,16 @@ function gmake.fetchProject(wks, name)
 		:withInheritance()
 	)
 
+	local toolsetName = prj.toolset or 'gcc'
+	local tools = Toolset.get(toolsetName)
+
 	prj.root = wks.root
 	prj.workspace = wks
 	prj.uuid = prj.uuid or os.uuid(prj.name)
 
-	-- TODO: Compiler/Linker from DOM
 	prj.compiler = gmake.toolsets.compilers.gcc
 	prj.linker = gmake.toolsets.linkers.gcc
+	prj.generatedFlags = tools.mapFlags(prj)
 
 	prj.configs = prj:fetchConfigs(gmake.fetchProjectConfig)
 
@@ -214,6 +218,9 @@ function gmake.fetchProjectConfig(prj, build, platform)
 		:fromScopes(prj.root, prj.workspace)
 	)
 
+	local toolsetName = prj.toolset or 'gcc'
+	local tools = Toolset.get(toolsetName)
+
 	cfg.root = prj.root
 	cfg.workspace = prj.workspace
 	cfg.project = prj
@@ -221,6 +228,7 @@ function gmake.fetchProjectConfig(prj, build, platform)
 	-- TODO: Compiler/Linker from DOM
 	cfg.compiler = gmake.toolsets.compilers.gcc
 	cfg.linker = gmake.toolsets.linkers.gcc
+	cfg.generatedFlags = tools.mapFlags(cfg)
 
 	return cfg
 end
@@ -258,17 +266,17 @@ function gmake.fetchConfig(state)
 	local cfg = dom.Config.new(state)
 
 	-- translate the incoming architecture
-	cfg.gmake_architecture = _ARCHITECTURES[cfg.architecture] or 'x86_64'
-	cfg.platform = cfg.platform or cfg.gmake_architecture
+	cfg.architecture = cfg.architecture or 'x86_64'
+	cfg.platform = cfg.platform or cfg.architecture
 
 	-- "Configuration|Platform or Architecture", e.g. "Debug|MyPlatform" or "Debug|Win32"
 	cfg.gmake_identifier = string.format('%s_%s', cfg.configuration, cfg.platform):lower()
 
 	-- "Configuration Platform|Architecture" e.g. "Debug MyPlatform|x64" or "Debug|Win32"
-	if cfg.platform ~= cfg.gmake_architecture then
-		cfg.gmake_build = string.format('%s_%s', string.join(' ', cfg.configuration, cfg.platform), cfg.gmake_architecture):lower()
+	if cfg.platform ~= cfg.architecture then
+		cfg.gmake_build = string.format('%s_%s', string.join(' ', cfg.configuration, cfg.platform), cfg.architecture):lower()
 	else
-		cfg.gmake_build = string.format('%s_%s', cfg.configuration, cfg.gmake_architecture):lower()
+		cfg.gmake_build = string.format('%s_%s', cfg.configuration, cfg.architecture):lower()
 	end
 
 	return cfg

@@ -118,6 +118,11 @@ Field.register({
 })
 
 Field.register({
+	name = 'toolset',
+	kind = 'string'
+})
+
+Field.register({
 	name = 'uuid',
 	kind = 'string'
 })
