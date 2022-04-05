@@ -20,6 +20,6 @@ function GmakeProjCFlagTests.DefaultFlags()
 	proj.cFlags(prj)
 
 	test.capture [[
-ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS)
+ALL_CFLAGS = $(CFLAGS) $(ALL_CPPFLAGS)
 	]]
 end

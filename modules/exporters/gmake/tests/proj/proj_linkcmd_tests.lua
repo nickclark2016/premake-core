@@ -23,3 +23,25 @@ function GmakeProjLinkCmdTests.DefaultCmd()
 LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
 	]]
 end
+
+
+---
+-- Tests the linker command output for static libraries.
+---
+function GmakeProjLinkCmdTests.StaticLibrary()
+	workspace('MyWorkspace', function ()
+		configurations({ 'Debug' })
+
+		project('MyProject', function ()
+			kind 'StaticLibrary'
+		end)
+	end)
+
+	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+
+	proj.linkCmd(prj)
+
+	test.capture [[
+LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
+	]]
+end

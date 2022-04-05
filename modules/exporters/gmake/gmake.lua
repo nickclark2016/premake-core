@@ -23,56 +23,6 @@ local _ARCHITECTURES = {
 	arm64 = 'ARM64'
 }
 
-
----
--- Table of all toolsets.
---
--- Temporary until toolsets are implemented.
----
-gmake.toolsets = {
-	compilers = {
-		gcc = {
-			getCFlags = function(cfg)
-				local flags = {}
-				if cfg.architecture == 'x86_64' then
-					table.insert(flags, '-m64')
-				elseif cfg.architecture == 'x86' then
-					table.insert(flags, '-m32')
-				end
-				return flags
-			end,
-			getCppFlags = function (cfg)
-				local flags = {}
-
-				return flags
-			end,
-			getCxxFlags = function (cfg)
-				local flags = gmake.toolsets.compilers.gcc.getCFlags(cfg)
-				-- TODO: Add C++ specific flags
-				return flags
-			end
-		}
-	},
-	linkers = {
-		gcc = {
-			getLinkerFlags = function(cfg)
-				local flags = {}
-				if cfg.gmake_architecture == 'x86_64' then
-					table.insert(flags, '-m64')
-					-- should only link on linux
-					table.insert(flags, '-L/usr/lib64')
-				elseif cfg.gmake_architecture == 'x86' then
-					table.insert(flags, '-m32')
-					-- should only link on linux
-					table.insert(flags, '-L/usr/lib32')
-				end
-				return flags
-			end
-		}
-	}
-}
-
-
 ---
 -- Exports the GNU makefile for all workspaces.
 ---
@@ -164,8 +114,10 @@ function gmake.fetchProject(wks, name)
 	prj.workspace = wks
 	prj.uuid = prj.uuid or os.uuid(prj.name)
 
-	prj.compiler = gmake.toolsets.compilers.gcc
-	prj.linker = gmake.toolsets.linkers.gcc
+	prj.architecture = prj.architecture or 'x86_64'
+	prj.platform = prj.platform or prj.architecture
+
+	prj.targetName = prj.targetName or prj.name
 	prj.generatedFlags = tools.mapFlags(prj)
 
 	prj.configs = prj:fetchConfigs(gmake.fetchProjectConfig)
@@ -190,7 +142,6 @@ function gmake.fetchWorkspaceConfig(wks, build, platform)
 	local cfg = gmake.fetchConfig(wks
 		:selectAny({ configurations = build, platforms = platform })
 		:fromScopes(wks.root)
-		:withInheritance()
 	)
 
 	cfg.root = wks.root
@@ -216,6 +167,7 @@ function gmake.fetchProjectConfig(prj, build, platform)
 	local cfg = gmake.fetchConfig(prj
 		:selectAny({ configurations = build, platforms = platform })
 		:fromScopes(prj.root, prj.workspace)
+		:withInheritance()
 	)
 
 	local toolsetName = prj.toolset or 'gcc'
@@ -226,8 +178,7 @@ function gmake.fetchProjectConfig(prj, build, platform)
 	cfg.project = prj
 
 	-- TODO: Compiler/Linker from DOM
-	cfg.compiler = gmake.toolsets.compilers.gcc
-	cfg.linker = gmake.toolsets.linkers.gcc
+	cfg.targetName = cfg.targetName or prj.targetName
 	cfg.generatedFlags = tools.mapFlags(cfg)
 
 	return cfg
@@ -268,16 +219,6 @@ function gmake.fetchConfig(state)
 	-- translate the incoming architecture
 	cfg.architecture = cfg.architecture or 'x86_64'
 	cfg.platform = cfg.platform or cfg.architecture
-
-	-- "Configuration|Platform or Architecture", e.g. "Debug|MyPlatform" or "Debug|Win32"
-	cfg.gmake_identifier = string.format('%s_%s', cfg.configuration, cfg.platform):lower()
-
-	-- "Configuration Platform|Architecture" e.g. "Debug MyPlatform|x64" or "Debug|Win32"
-	if cfg.platform ~= cfg.architecture then
-		cfg.gmake_build = string.format('%s_%s', string.join(' ', cfg.configuration, cfg.platform), cfg.architecture):lower()
-	else
-		cfg.gmake_build = string.format('%s_%s', cfg.configuration, cfg.architecture):lower()
-	end
 
 	return cfg
 end

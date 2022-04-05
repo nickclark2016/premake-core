@@ -1,13 +1,13 @@
 local gmake = require('gmake')
 local proj = gmake.proj
 
-local GmakeProjLinkFlagTests = test.declare('GmakeProjLinkFlagTests', 'gmake-proj', 'gmake')
+local GmakeProjConfigurationLinkFlagTests = test.declare('GmakeProjConfigurationLinkFlagTests', 'gmake-proj', 'gmake')
 
 
 ---
 -- Tests the default linker flags output.
 ---
-function GmakeProjLinkFlagTests.DefaultTarget()
+function GmakeProjConfigurationLinkFlagTests.DefaultTarget()
 	workspace('MyWorkspace', function ()
 		configurations({ 'Debug' })
 
@@ -15,9 +15,9 @@ function GmakeProjLinkFlagTests.DefaultTarget()
 		end)
 	end)
 
-	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject'].configs['Debug']
 
-	proj.linkFlags(prj)
+	proj.linkFlags(cfg)
 
 	test.capture [[
 ALL_LDFLAGS = $(LDFLAGS) -m64
@@ -28,7 +28,7 @@ end
 ---
 -- Tests the default linker flags output for console applications.
 ---
-function GmakeProjLinkFlagTests.ConsoleApplication()
+function GmakeProjConfigurationLinkFlagTests.ConsoleApplication()
 	workspace('MyWorkspace', function ()
 		configurations({ 'Debug' })
 
@@ -37,9 +37,9 @@ function GmakeProjLinkFlagTests.ConsoleApplication()
 		end)
 	end)
 
-	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject'].configs['Debug']
 
-	proj.linkFlags(prj)
+	proj.linkFlags(cfg)
 
 	test.capture [[
 ALL_LDFLAGS = $(LDFLAGS) -m64
@@ -50,7 +50,7 @@ end
 ---
 -- Tests the default linker flags output for static libraries.
 ---
-function GmakeProjLinkFlagTests.StaticLibrary()
+function GmakeProjConfigurationLinkFlagTests.StaticLibrary()
 	workspace('MyWorkspace', function ()
 		configurations({ 'Debug' })
 
@@ -59,9 +59,9 @@ function GmakeProjLinkFlagTests.StaticLibrary()
 		end)
 	end)
 
-	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject'].configs['Debug']
 
-	proj.linkFlags(prj)
+	proj.linkFlags(cfg)
 
 	test.capture [[
 ALL_LDFLAGS = $(LDFLAGS) -m64
@@ -72,7 +72,7 @@ end
 ---
 -- Tests the default linker flags output for shared libraries.
 ---
-function GmakeProjLinkFlagTests.SharedLibrary()
+function GmakeProjConfigurationLinkFlagTests.SharedLibrary()
 	workspace('MyWorkspace', function ()
 		configurations({ 'Debug' })
 
@@ -81,9 +81,9 @@ function GmakeProjLinkFlagTests.SharedLibrary()
 		end)
 	end)
 
-	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject'].configs['Debug']
 
-	proj.linkFlags(prj)
+	proj.linkFlags(cfg)
 
 	test.capture [[
 ALL_LDFLAGS = $(LDFLAGS) -m64 -shared -Wl,-soname=libMyProject.so

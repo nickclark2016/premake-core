@@ -21,6 +21,6 @@ function GmakeProjConfigurationCflagsTests.DefaultCFlags()
 	proj.cFlags(cfg)
 
 	test.capture [[
-ALL_CFLAGS += -m64
+ALL_CFLAGS = $(CFLAGS) $(ALL_CPPFLAGS)
 	]]
 end

@@ -20,6 +20,6 @@ function GmakeProjCppFlagTests.DefaultFlags()
 	proj.cppFlags(prj)
 
 	test.capture [[
-ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+ALL_CPPFLAGS = $(CPPFLAGS) -MMD -MP -m64 $(DEFINES) $(INCLUDES)
 	]]
 end

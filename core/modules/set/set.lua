@@ -61,6 +61,21 @@ end
 
 
 ---
+-- Returns a set of filtered values
+---
+
+function set.filter(self, func)
+	local result = set.of()
+	set.forEach(self, function(value)
+		if func(value) then
+			set.append(result, value)
+		end
+	end)
+	return result
+end
+
+
+---
 -- Call the provided function once per set element.
 ---
 

@@ -21,6 +21,5 @@ function GmakeProjConfigurationCxxflagsTests.DefaultCxxFlags()
 	proj.cxxFlags(cfg)
 
 	test.capture [[
-ALL_CXXFLAGS += -m64
 	]]
 end

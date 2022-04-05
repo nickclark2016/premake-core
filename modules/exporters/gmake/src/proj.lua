@@ -31,10 +31,10 @@ proj.elements = {
 			proj.cppFlags,
 			proj.cFlags,
 			proj.cxxFlags,
-			proj.linkFlags,
 			proj.linkDirectories,
 			proj.configurations,
 			proj.linkCmd,
+			proj.linkFlags,
 			proj.objects,
 			proj.allRule,
 			proj.targetRule,
@@ -197,19 +197,10 @@ end
 ---
 function proj.includeDirs(prj)
 	local includes = prj.generatedFlags.includes
-	if isProject(prj) then
-		if includes ~= nil and #includes > 0 then
-			wl('INCLUDES = %s', table.concat(includes, ' '))
-		else
-			wl('INCLUDES =')
-		end
+	if includes ~= nil and #includes > 0 then
+		wl('INCLUDES = %s', table.concat(includes, ' '))
 	else
-		local cfg = prj
-		if includes ~= nil and #includes > 0 then
-			local includeDirString = table.concat(includes)
-
-			wl('INCLUDES += %s', includeDirString)
-		end
+		wl('INCLUDES =')
 	end
 end
 
@@ -223,9 +214,9 @@ end
 function proj.defines(prj)
 	local defs = prj.generatedFlags.defines
 	if #defs > 0 then
-		wl('DEFINES += %s', table.concat(defs, ' '))
+		wl('DEFINES = %s', table.concat(defs, ' '))
 	else
-		wl('DEFINES +=')
+		wl('DEFINES =')
 	end
 end
 
@@ -279,7 +270,7 @@ end
 ---
 function proj.targetName(prj)
 	if isProject(prj) then
-		local name = prj.name
+		local name = prj.targetName
 		wl('TARGET = $(TARGETDIR)/%s', name)
 	else
 		--- TODO: Override target name
@@ -294,24 +285,13 @@ end
 --  project to print CPP flags for
 ---
 function proj.cppFlags(prj)
-	if isProject(prj) then
-		local toolset = prj.compiler
-		local flags = toolset.getCppFlags(prj)
+	local flags = prj.generatedFlags.cppCompilerFlags
 
-		if #flags > 0 then
-			wl('ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP %s $(DEFINES) $(INCLUDES)', table.concat(flags, ' '))
-		else
-			wl('ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)')
-		end
+	if #flags > 0 then
+		wl('ALL_CPPFLAGS = $(CPPFLAGS) %s $(DEFINES) $(INCLUDES)', table.concat(flags, ' '))
 	else
-		local cfg = prj
-		local toolset = cfg.compiler
-		local flags = toolset.getCppFlags(cfg)
-	
-		if #flags > 0 then
-			wl('ALL_CPPFLAGS += %s', table.concat(flags, ' '))
-		end
-	end	
+		wl('ALL_CPPFLAGS = $(CPPFLAGS) $(DEFINES) $(INCLUDES)')
+	end
 end
 
 
@@ -322,23 +302,12 @@ end
 --  project to print C flags for
 ---
 function proj.cFlags(prj)
-	if isProject(prj) then
-		local toolset = prj.compiler
-		local flags = toolset.getCFlags(prj)
+	local flags = prj.generatedFlags.cCompilerFlags
 
-		if #flags > 0 then
-			wl('ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
-		else
-			wl('ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS)')
-		end
+	if #flags > 0 then
+		wl('ALL_CFLAGS = $(CFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
 	else
-		local cfg = prj
-		local toolset = cfg.compiler
-		local flags = toolset.getCFlags(cfg)
-
-		if #flags > 0 then
-			wl('ALL_CFLAGS += %s', table.concat(flags, ' '))
-		end
+		wl('ALL_CFLAGS = $(CFLAGS) $(ALL_CPPFLAGS)')
 	end
 end
 
@@ -351,18 +320,16 @@ end
 ---
 function proj.cxxFlags(prj)
 	if isProject(prj) then
-		local toolset = prj.compiler
-		local flags = toolset.getCxxFlags(prj)
+		local flags = prj.generatedFlags.cxxCompilerFlags
 	
 		if #flags > 0 then
-			wl('ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
+			wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
 		else
-			wl('ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS)')
+			wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS)')
 		end
 	else
 		local cfg = prj
-		local toolset = cfg.compiler
-		local flags = toolset.getCxxFlags(cfg)
+		local flags = cfg.generatedFlags.cxxCompilerFlags
 	
 		if #flags > 0 then
 			wl('ALL_CXXFLAGS += %s', table.concat(flags, ' '))
@@ -456,8 +423,16 @@ end
 --  configuration to print link command of
 ---
 function proj.linkCmd(cfg)
-	-- TODO: Switch on project types
-	wl('LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)')
+	local linker = cfg.generatedFlags.linkerExecutable
+	local kind = proj.impl.getApplicationType(cfg)
+	if kind == 'StaticLibrary' then
+		wl('LINKCMD = %s -rcs "$@" $(OBJECTS)', linker)
+	elseif kind == 'ConsoleApplication' or kind == 'WindowedApplication' then
+		wl('LINKCMD = %s -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)', linker)
+	elseif kind == 'SharedLibrary' then
+		wl('LINKCMD = %s -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)', linker)
+	end
+
 end
 
 
@@ -641,6 +616,11 @@ function proj.fileRules(prj)
 	end
 
 	wl()
+end
+
+
+function proj.impl.getApplicationType(cfg)
+	return cfg.kind or (cfg.project and cfg.project.kind or 'ConsoleApplication')
 end
 
 
