@@ -20,7 +20,7 @@ function GmakeProjDefinesTests.NoDefines()
 	proj.defines(prj)
 
 	test.capture [[
-DEFINES +=
+DEFINES =
 	]]
 end
 
@@ -44,7 +44,7 @@ function GmakeProjDefinesTests.Defines()
 	proj.defines(prj)
 
 	test.capture [[
-DEFINES += -DMY_DEFINE
+DEFINES = -DMY_DEFINE
 	]]
 end
 
@@ -71,6 +71,6 @@ function GmakeProjDefinesTests.ConfigurationDefines()
 	proj.defines(prj)
 
 	test.capture [[
-DEFINES +=
+DEFINES =
 	]]
 end

@@ -67,7 +67,7 @@ function GmakeProjConfigurationDefinesTests.ConfigurationDefines()
 	proj.defines(cfg)
 
 	test.capture [[
-DEFINES += -DMY_DEFINE
+DEFINES = -DMY_DEFINE
 	]]
 end
 
@@ -92,5 +92,32 @@ function GmakeProjConfigurationDefinesTests.ConfigurationDefinesOtherConfigurati
 	proj.defines(cfg)
 
 	test.capture [[
+	]]
+end
+
+
+---
+-- Tests setting configuration-wide defines and project-wide defines.
+---
+function GmakeProjConfigurationDefinesTests.ConfigurationAndProjectDefines()
+	workspace('MyWorkspace', function ()
+		configurations({ 'Debug' })
+
+		defines('PROJECT_DEFINE')
+
+		project('MyProject', function ()
+			when({ 'configurations:Debug' }, function ()
+				defines('MY_DEFINE')
+			end)
+		end)
+	end)
+
+	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = prj.configs['Debug']
+
+	proj.defines(cfg)
+
+	test.capture [[
+DEFINES = -DPROJECT_DEFINE -DMY_DEFINE
 	]]
 end

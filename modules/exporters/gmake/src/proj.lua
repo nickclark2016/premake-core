@@ -319,21 +319,12 @@ end
 --  project to print CXX flags for
 ---
 function proj.cxxFlags(prj)
-	if isProject(prj) then
-		local flags = prj.generatedFlags.cxxCompilerFlags
+	local flags = prj.generatedFlags.cxxCompilerFlags
 	
-		if #flags > 0 then
-			wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
-		else
-			wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS)')
-		end
+	if #flags > 0 then
+		wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS) %s', table.concat(flags, ' '))
 	else
-		local cfg = prj
-		local flags = cfg.generatedFlags.cxxCompilerFlags
-	
-		if #flags > 0 then
-			wl('ALL_CXXFLAGS += %s', table.concat(flags, ' '))
-		end
+		wl('ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS)')
 	end
 end
 

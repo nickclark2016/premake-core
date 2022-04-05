@@ -71,6 +71,6 @@ function GmakeProjConfigurationIncludeDirsTests.includeDirs()
 	proj.includeDirs(cfg)
 
 	test.capture [[
-INCLUDES += -Iinclude
+INCLUDES = -Iinclude
 	]]
 end

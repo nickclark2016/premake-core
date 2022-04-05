@@ -23,3 +23,28 @@ function GmakeProjConfigurationCxxflagsTests.DefaultCxxFlags()
 	test.capture [[
 	]]
 end
+
+
+---
+-- Tests the CXXFLAGS output with RTTI off.
+---
+function GmakeProjConfigurationCxxflagsTests.RttiOff()
+	workspace('MyWorkspace', function ()
+		configurations({ 'Debug' })
+
+		project('MyProject', function ()
+			when({ 'configurations:Debug' }, function()
+				rtti 'Off'
+			end)
+		end)
+	end)
+
+	local prj = gmake.buildDom().workspaces['MyWorkspace'].projects['MyProject']
+	local cfg = prj.configs['Debug']
+
+	proj.cxxFlags(cfg)
+
+	test.capture [[
+ALL_CXXFLAGS = $(CXXFLAGS) $(ALL_CPPFLAGS) -fno-rtti
+	]]
+end
