@@ -267,10 +267,7 @@ function m.buildDependsOnTarget(cfg)
 		return nil
 	end
 	
-	local depsPhony = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.project.name .. ".dependencies"
-	_p("build %s: phony %s", depsPhony, table.concat(depTargets, " "))
-	_p("")
-	return depsPhony
+	return depTargets
 end
 
 function m.configurations(prj)
@@ -280,8 +277,8 @@ function m.configurations(prj)
 		
 		m.configurationVariables(cfg)
 		
-		local depsTarget = m.buildDependsOnTarget(cfg)
-		cfg._dependsOnTarget = depsTarget
+		local depsTargets = m.buildDependsOnTarget(cfg)
+		cfg._dependsOnTargets = depsTargets
 		
 		m.buildFiles(cfg)
 		m.linkTarget(cfg)
@@ -820,11 +817,31 @@ function m.buildFile(cfg, node, filecfg, objFile, pchFile, prebuildTarget)
 			end
 		end
 		
-		if not prebuildTarget and (not cfg._customRuleOutputs or #cfg._customRuleOutputs == 0) and cfg._dependsOnTarget then
-			if implicitDeps == "" then
-				implicitDeps = " |"
+		if not prebuildTarget and (not cfg._customRuleOutputs or #cfg._customRuleOutputs == 0) then
+			-- Use pre-computed dependency targets if available, otherwise compute them inline
+			local depTargets = cfg._dependsOnTargets
+			if not depTargets and cfg.dependson and #cfg.dependson > 0 then
+				depTargets = {}
+				for _, depname in ipairs(cfg.dependson) do
+					local depprj = p.workspace.findproject(cfg.workspace, depname)
+					if depprj then
+						local depcfg = project.getconfig(depprj, cfg.buildcfg, cfg.platform)
+						if depcfg then
+							local depTarget = path.getrelative(cfg.workspace.location, depcfg.buildtarget.directory) .. "/" .. depcfg.buildtarget.name
+							table.insert(depTargets, depTarget)
+						end
+					end
+				end
 			end
-			implicitDeps = implicitDeps .. " " .. cfg._dependsOnTarget
+			
+			if depTargets then
+				if implicitDeps == "" then
+					implicitDeps = " |"
+				end
+				for _, depTarget in ipairs(depTargets) do
+					implicitDeps = implicitDeps .. " " .. depTarget
+				end
+			end
 		end
 		
 		_p("build %s: %s %s%s", objFile, rule, relPath, implicitDeps)
@@ -1032,12 +1049,37 @@ function m.buildCustomFile(cfg, node, filecfg, outputTracking)
 		end
 	end
 	
-	-- Add dependson target if it exists and no prebuild (prebuild already has the dep)
-	if cfg._dependsOnTarget and not cfg._hasPrebuild then
-		if deps == "" then
-			deps = " |"
+	-- Add dependson targets if they exist and no prebuild (prebuild already has the dep)
+	-- Use pre-computed dependency targets if available, otherwise compute them inline
+	local hasPrebuild = cfg._hasPrebuild
+	if not hasPrebuild then
+		hasPrebuild = #cfg.prebuildcommands > 0 or cfg.prebuildmessage
+	end
+	
+	if not hasPrebuild then
+		local depTargets = cfg._dependsOnTargets
+		if not depTargets and cfg.dependson and #cfg.dependson > 0 then
+			depTargets = {}
+			for _, depname in ipairs(cfg.dependson) do
+				local depprj = p.workspace.findproject(cfg.workspace, depname)
+				if depprj then
+					local depcfg = project.getconfig(depprj, cfg.buildcfg, cfg.platform)
+					if depcfg then
+						local depTarget = path.getrelative(cfg.workspace.location, depcfg.buildtarget.directory) .. "/" .. depcfg.buildtarget.name
+						table.insert(depTargets, depTarget)
+					end
+				end
+			end
 		end
-		deps = deps .. " " .. cfg._dependsOnTarget
+		
+		if depTargets then
+			if deps == "" then
+				deps = " |"
+			end
+			for _, depTarget in ipairs(depTargets) do
+				deps = deps .. " " .. depTarget
+			end
+		end
 	end
 	
 	local commands = os.translateCommandsAndPaths(filecfg.buildcommands, cfg.project.basedir, cfg.project.location)
@@ -1087,19 +1129,28 @@ function m.linkTarget(cfg)
 		implicitDeps = " | " .. table.concat(wksRelDeps, " ")
 	end
 	
-	if cfg.dependson and #cfg.dependson > 0 then
+	-- Use pre-computed dependency targets if available, otherwise compute them inline
+	local depTargets = cfg._dependsOnTargets
+	if not depTargets and cfg.dependson and #cfg.dependson > 0 then
+		depTargets = {}
 		for _, depname in ipairs(cfg.dependson) do
 			local depprj = p.workspace.findproject(cfg.workspace, depname)
 			if depprj then
 				local depcfg = project.getconfig(depprj, cfg.buildcfg, cfg.platform)
 				if depcfg then
 					local depTarget = path.getrelative(cfg.workspace.location, depcfg.buildtarget.directory) .. "/" .. depcfg.buildtarget.name
-					if implicitDeps == "" then
-						implicitDeps = " |"
-					end
-					implicitDeps = implicitDeps .. " " .. depTarget
+					table.insert(depTargets, depTarget)
 				end
 			end
+		end
+	end
+	
+	if depTargets then
+		if implicitDeps == "" then
+			implicitDeps = " |"
+		end
+		for _, depTarget in ipairs(depTargets) do
+			implicitDeps = implicitDeps .. " " .. depTarget
 		end
 	end
 	

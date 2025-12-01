@@ -50,6 +50,7 @@ newaction {
 		end)
 		p.generate(wks, p.modules.ninja.getninjafilename(wks, false), p.modules.ninja.wks.generate)
 		p.tools.getrelative = getrelative
+		p.escaper()
 	end,
 	onProject = function(prj)
 		p.tools.getrelative = p.modules.ninja.getrelative
@@ -66,6 +67,7 @@ newaction {
 			p.warn("Ninja does not support the '%s' language. No build file generated for project '%s'.", prj.language, prj.name)
 		end
 		p.tools.getrelative = getrelative
+		p.escaper()
 	end,
 }
 

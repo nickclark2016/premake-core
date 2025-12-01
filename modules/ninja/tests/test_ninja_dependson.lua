@@ -210,16 +210,12 @@ target_App_Debug = App
 			abspath = path.join(cfg.project.basedir, "data.in")
 		}
 		
-		-- Store the dependson target on cfg like the real code does
-		local depsPhony = "bin/Debug/App.dependencies"
-		cfg._dependsOnTarget = depsPhony
-		cfg._hasPrebuild = false  -- No prebuild in this config
-		
+		-- The code should compute dependson targets from cfg.dependson
 		cpp.buildCustomFile(cfg, node, filecfg)
 		
-		-- The custom build should have the dependencies phony as an implicit dependency
+		-- The custom build should have the Generator as an implicit dependency
 		test.capture [[
-build obj/Debug/App/data.cpp: custom data.in | bin/Debug/App.dependencies
+build obj/Debug/App/data.cpp: custom data.in | bin/Debug/Generator
   customcommand = bin/Debug/Generator data.in
 		]]
 	end
