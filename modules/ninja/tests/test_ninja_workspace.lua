@@ -100,7 +100,7 @@ subninja ProjectB.ninja
 		test.capture [[
 
 # Default build target
-default TestProject_Release
+default TestProject_Debug
 		]]
 	end
 
@@ -126,7 +126,142 @@ default TestProject_Release
 		test.capture [[
 
 # Default build target
-default ProjectA_Release ProjectB_Release
+default ProjectA_Debug ProjectB_Debug
+		]]
+	end
+
+
+--
+-- Check default target with startup project.
+--
+
+	function suite.defaultTarget_onStartupProject()
+		p.action.set("ninja")
+		local wks2 = workspace "TestWorkspace2"
+		configurations { "Debug", "Release" }
+		startproject "ProjectB"
+		
+		project "ProjectA"
+		kind "ConsoleApp"
+		files { "a.cpp" }
+		
+		project "ProjectB"
+		kind "ConsoleApp"
+		files { "b.cpp" }
+		
+		wks2 = test.getWorkspace(wks2)
+		wks_module.defaultTarget(wks2)
+		
+		test.capture [[
+
+# Default build target
+default ProjectB_Debug
+		]]
+	end
+
+
+--
+-- Check default target with default platform.
+--
+
+	function suite.defaultTarget_onDefaultPlatform()
+		p.action.set("ninja")
+		local wks2 = workspace "TestWorkspace"
+		configurations { "Debug", "Release" }
+		platforms { "x86", "x64" }
+		defaultplatform "x64"
+		
+		project "TestProject"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		
+		wks2 = test.getWorkspace(wks2)
+		wks_module.defaultTarget(wks2)
+		
+		test.capture [[
+
+# Default build target
+default TestProject_Debug_x64
+		]]
+	end
+
+
+--
+-- Check default target with startup project and default platform.
+--
+
+	function suite.defaultTarget_onStartupProjectAndDefaultPlatform()
+		p.action.set("ninja")
+		local wks2 = workspace "TestWorkspace3"
+		configurations { "Debug", "Release" }
+		platforms { "x86", "x64" }
+		defaultplatform "x64"
+		startproject "ProjectB"
+		
+		project "ProjectA"
+		kind "ConsoleApp"
+		files { "a.cpp" }
+		
+		project "ProjectB"
+		kind "ConsoleApp"
+		files { "b.cpp" }
+		
+		wks2 = test.getWorkspace(wks2)
+		wks_module.defaultTarget(wks2)
+		
+		test.capture [[
+
+# Default build target
+default ProjectB_Debug_x64
+		]]
+	end
+
+
+--
+-- Check default target respects first configuration when no default platform.
+--
+
+	function suite.defaultTarget_onMultipleConfigs()
+		wks.projects = {}
+		
+		configurations { "Debug", "Release", "Profile" }
+		
+		project "TestProject"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		
+		wks = prepare()
+		wks_module.defaultTarget(wks)
+		
+		test.capture [[
+
+# Default build target
+default TestProject_Debug
+		]]
+	end
+
+
+--
+-- Check default target with platforms but no default platform uses first platform.
+--
+
+	function suite.defaultTarget_onPlatformsNoDefault()
+		p.action.set("ninja")
+		local wks2 = workspace "TestWorkspace4"
+		configurations { "Debug", "Release" }
+		platforms { "x86", "x64" }
+		
+		project "TestProject"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		
+		wks2 = test.getWorkspace(wks2)
+		wks_module.defaultTarget(wks2)
+		
+		test.capture [[
+
+# Default build target
+default TestProject_Debug_x86
 		]]
 	end
 
@@ -159,4 +294,5 @@ build all: phony
   build ProjectB: phony
 		]]
 	end
+
 

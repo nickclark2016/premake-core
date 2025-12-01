@@ -44,11 +44,43 @@ function m.defaultTarget(wks)
 	_p("# Default build target")
 	
 	local defaultTargets = {}
-	for prj in p.workspace.eachproject(wks) do
-		for cfg in project.eachconfig(prj) do
-			if cfg.buildcfg == "Release" then
-				table.insert(defaultTargets, ninja.key(cfg))
-				break
+	
+	-- Determine which projects to build by default
+	local projectsToBuild = {}
+	if wks.startproject then
+		local startprj = p.workspace.findproject(wks, wks.startproject)
+		if startprj then
+			table.insert(projectsToBuild, startprj)
+		end
+	end
+	
+	-- If no startup project specified, build all projects
+	if #projectsToBuild == 0 then
+		for prj in p.workspace.eachproject(wks) do
+			table.insert(projectsToBuild, prj)
+		end
+	end
+	
+	-- Determine the default configuration to build
+	local defaultCfg = nil
+	for cfg in p.workspace.eachconfig(wks) do
+		-- If a default platform is specified, find the first config with that platform
+		if wks.defaultplatform and cfg.platform == wks.defaultplatform then
+			defaultCfg = cfg
+			break
+		end
+		-- Otherwise, fall back to the first configuration
+		if not defaultCfg then
+			defaultCfg = cfg
+		end
+	end
+	
+	-- Build the list of default targets based on the selected projects and configuration
+	if defaultCfg then
+		for _, prj in ipairs(projectsToBuild) do
+			local prjCfg = p.project.getconfig(prj, defaultCfg.buildcfg, defaultCfg.platform)
+			if prjCfg then
+				table.insert(defaultTargets, ninja.key(prjCfg))
 			end
 		end
 	end
