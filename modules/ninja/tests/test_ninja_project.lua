@@ -143,7 +143,6 @@ end
 		-- Get the actual project name for the test
 		local targetName = cfg.buildtarget.name
 
-		-- Verify output contains the actual target name for link, not .link suffix
 		test.capture(string.format([[
 build bin/Debug/%s: link obj/Debug/main.o
   ldflags = $ldflags_%s_Debug
@@ -183,4 +182,157 @@ build bin/Debug/%s.postbuild: postbuild | bin/Debug/%s
 build bin/Debug/%s: link obj/Debug/main.o
   ldflags = $ldflags_%s_Debug
 		]], targetName, prj.name))
+	end
+
+
+--
+-- Test that shared library on Windows without NoImportLib flag works correctly with GCC
+--
+	function suite.sharedLibWindowsGCC()
+		local wks = test.createWorkspace()
+		configurations { "Debug" }
+		toolset "gcc"
+		_OS = "windows"
+
+		local prj = test.createProject(wks)
+		kind "SharedLib"
+		language "C++"
+		files { "main.cpp" }
+
+		local cfg = test.getconfig(prj, "Debug")
+
+		-- Set up object files list (normally done by buildFiles)
+		cfg._objectFiles = { "obj/Debug/main.o" }
+
+		-- Call linkTarget and check output
+		ninja.cpp.linkTarget(cfg)
+
+		test.capture [[
+build bin/Debug/MyProject2.dll | bin/Debug/MyProject2.exp bin/Debug/MyProject2.lib: link obj/Debug/main.o
+  ldflags = $ldflags_MyProject2_Debug
+		]]
+	end
+
+
+--
+-- Test that shared library on Windows without NoImportLib flag works correctly with MSVC
+--
+	function suite.sharedLibWindowsMSVC()
+		local wks = test.createWorkspace()
+		configurations { "Debug" }
+		toolset "msc"
+		_OS = "windows"
+
+		local prj = test.createProject(wks)
+		kind "SharedLib"
+		language "C++"
+		files { "main.cpp" }
+
+		local cfg = test.getconfig(prj, "Debug")
+
+		-- Set up object files list (normally done by buildFiles)
+		cfg._objectFiles = { "obj/Debug/main.obj" }
+
+		-- Call linkTarget and check output
+		ninja.cpp.linkTarget(cfg)
+
+		test.capture [[
+build bin/Debug/MyProject2.dll | bin/Debug/MyProject2.exp bin/Debug/MyProject2.lib: link obj/Debug/main.obj
+  ldflags = $ldflags_MyProject2_Debug
+		]]
+	end
+
+
+--
+-- Test that shared library on Windows with NoImportLib flag works correctly with GCC
+--
+
+	function suite.sharedLibWindowsGCCNoImportLib()
+		local wks = test.createWorkspace()
+		configurations { "Debug" }
+		toolset "gcc"
+		_OS = "windows"
+
+		local prj = test.createProject(wks)
+		kind "SharedLib"
+		language "C++"
+		files { "main.cpp" }
+		flags { "NoImportLib" }
+
+		local cfg = test.getconfig(prj, "Debug")
+
+		-- Set up object files list (normally done by buildFiles)
+		cfg._objectFiles = { "obj/Debug/main.o" }
+
+		-- Call linkTarget and check output
+		ninja.cpp.linkTarget(cfg)
+
+		test.capture [[
+build bin/Debug/MyProject2.dll | bin/Debug/MyProject2.exp: link obj/Debug/main.o
+  ldflags = $ldflags_MyProject2_Debug
+		]]
+		
+	end
+
+
+--
+-- Test that shared library on Windows with NoImportLib flag works correctly with MSVC
+--
+
+	function suite.sharedLibWindowsMSVCNoImportLib()
+		local wks = test.createWorkspace()
+		configurations { "Debug" }
+		toolset "msc"
+		_OS = "windows"
+
+		local prj = test.createProject(wks)
+		kind "SharedLib"
+		language "C++"
+		files { "main.cpp" }
+		flags { "NoImportLib" }
+
+		local cfg = test.getconfig(prj, "Debug")
+
+		-- Set up object files list (normally done by buildFiles)
+		cfg._objectFiles = { "obj/Debug/main.obj" }
+
+		-- Call linkTarget and check output
+		ninja.cpp.linkTarget(cfg)
+
+		test.capture [[
+build bin/Debug/MyProject2.dll | bin/Debug/MyProject2.exp: link obj/Debug/main.obj
+  ldflags = $ldflags_MyProject2_Debug
+		]]
+
+	end
+
+
+--
+-- Test the shared library not on Windows does not create exp or lib files
+--
+
+	function suite.sharedLibNotWindows()
+		local wks = test.createWorkspace()
+		configurations { "Debug" }
+		toolset "gcc"
+		_OS = "linux"
+
+		local prj = test.createProject(wks)
+		kind "SharedLib"
+		language "C++"
+		files { "main.cpp" }
+
+		local cfg = test.getconfig(prj, "Debug")
+
+		-- Set up object files list (normally done by buildFiles)
+		cfg._objectFiles = { "obj/Debug/main.o" }
+
+		-- Call linkTarget and check output
+		ninja.cpp.linkTarget(cfg)
+
+		test.capture [[
+build bin/Debug/libMyProject2.so: link obj/Debug/main.o
+  ldflags = $ldflags_MyProject2_Debug
+		]]
+
 	end

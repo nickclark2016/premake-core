@@ -1162,8 +1162,33 @@ function m.linkTarget(cfg)
 	end
 	
 	local hasPostBuild = #cfg.postbuildcommands > 0 or cfg.postbuildmessage
+
+	local implicitoutputs = {}
+
+	-- If this target is a shared library on Windows with NoImportLib not set, add an implicit output
+	-- for the .lib file
+	-- If this is on windows and building a shared library, emit a exp file as an implicit output
+	if cfg.system == p.WINDOWS and cfg.kind == p.SHAREDLIB then
+		local expFileName = cfg.buildtarget.name:gsub("%..-$", "") .. ".exp"
+		if expFileName then
+			local expFilePath = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. expFileName
+			table.insert(implicitoutputs, expFilePath)
+		end
+
+		if not cfg.flags.NoImportLib then
+			local importLibName = cfg.buildtarget.name:gsub("%..-$", "") .. ".lib"
+			if importLibName then
+				local importLibPath = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. importLibName
+				table.insert(implicitoutputs, importLibPath)
+			end
+		end
+	end
 	
-	_p("build %s: %s %s%s", targetPath, rule, table.concat(cfg._objectFiles, " "), implicitDeps)
+	if #implicitoutputs > 0 then
+		_p("build %s | %s: %s %s%s", targetPath, table.concat(implicitoutputs, " "), rule, table.concat(cfg._objectFiles, " "), implicitDeps)
+	else
+		_p("build %s: %s %s%s", targetPath, rule, table.concat(cfg._objectFiles, " "), implicitDeps)
+	end
 	
 	if cfg.kind ~= p.STATICLIB then
 		_p("  ldflags = $ldflags_%s", ninja.key(cfg))
