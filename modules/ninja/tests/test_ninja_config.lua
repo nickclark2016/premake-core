@@ -42,10 +42,10 @@
 		_OS = "Linux"
 		kind "ConsoleApp"
 		files { "main.cpp" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -s
 objdir_MyProject_Debug = obj/Debug
@@ -61,10 +61,10 @@ target_MyProject_Debug = MyProject
 		_OS = "Windows"
 		kind "ConsoleApp"
 		files { "main.cpp" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD
 cxxflags_MyProject_Debug = /MD /EHsc
@@ -82,10 +82,10 @@ target_MyProject_Debug = MyProject.exe
 		_OS = "macosx"
 		kind "ConsoleApp"
 		files { "main.cpp" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -Wl,-x
 objdir_MyProject_Debug = obj/Debug
@@ -107,10 +107,10 @@ target_MyProject_Debug = MyProject
 		defines { "DEBUG", "PLATFORM_LINUX" }
 		defines { 'HELLO="HELLO WORLD"' }
 		defines { "VALUE=with_paren()"}
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -DDEBUG -DPLATFORM_LINUX -DHELLO="HELLO WORLD" -DVALUE=with_paren()
 cxxflags_MyProject_Debug = -DDEBUG -DPLATFORM_LINUX -DHELLO="HELLO WORLD" -DVALUE=with_paren()
@@ -129,10 +129,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		defines { "DEBUG", "PLATFORM_WINDOWS" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD /DDEBUG /DPLATFORM_WINDOWS
 cxxflags_MyProject_Debug = /MD /EHsc /DDEBUG /DPLATFORM_WINDOWS
@@ -151,10 +151,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		defines { "DEBUG", "PLATFORM_MACOS" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -DDEBUG -DPLATFORM_MACOS
 cxxflags_MyProject_Debug = -DDEBUG -DPLATFORM_MACOS
@@ -177,10 +177,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		includedirs { "include", "external" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -Iinclude -Iexternal
 cxxflags_MyProject_Debug = -Iinclude -Iexternal
@@ -199,10 +199,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		includedirs { "include", "external" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD /Iinclude /Iexternal
 cxxflags_MyProject_Debug = /MD /EHsc /Iinclude /Iexternal
@@ -221,10 +221,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		includedirs { "include", "external" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -Iinclude -Iexternal
 cxxflags_MyProject_Debug = -Iinclude -Iexternal
@@ -247,10 +247,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		libdirs { "lib", "external/lib" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -s -Llib -Lexternal/lib
 objdir_MyProject_Debug = obj/Debug
@@ -267,10 +267,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		libdirs { "lib", "external/lib" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD
 cxxflags_MyProject_Debug = /MD /EHsc
@@ -289,10 +289,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		libdirs { "lib", "external/lib" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -Wl,-x -Llib -Lexternal/lib
 objdir_MyProject_Debug = obj/Debug
@@ -313,10 +313,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		links { "m", "pthread" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -s
 links_MyProject_Debug = -lm -lpthread
@@ -334,10 +334,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		links { "User32", "Gdi32" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD
 cxxflags_MyProject_Debug = /MD /EHsc
@@ -357,10 +357,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		links { "m", "pthread" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 ldflags_MyProject_Debug = -Wl,-x
 links_MyProject_Debug = -lm -lpthread
@@ -382,10 +382,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		buildoptions { "-Wall", "-Wextra" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -Wall -Wextra
 cxxflags_MyProject_Debug = -Wall -Wextra
@@ -404,10 +404,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		buildoptions { "/W4", "/WX" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD /W4 /WX
 cxxflags_MyProject_Debug = /MD /EHsc /W4 /WX
@@ -426,10 +426,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		buildoptions { "-Wall", "-Wextra" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -Wall -Wextra
 cxxflags_MyProject_Debug = -Wall -Wextra
@@ -452,10 +452,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		undefines { "NDEBUG", "OLD_PLATFORM" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -UNDEBUG -UOLD_PLATFORM
 cxxflags_MyProject_Debug = -UNDEBUG -UOLD_PLATFORM
@@ -474,10 +474,10 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		undefines { "NDEBUG", "OLD_PLATFORM" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = /MD /UNDEBUG /UOLD_PLATFORM
 cxxflags_MyProject_Debug = /MD /EHsc /UNDEBUG /UOLD_PLATFORM
@@ -496,10 +496,10 @@ target_MyProject_Debug = MyProject.exe
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		undefines { "NDEBUG", "OLD_PLATFORM" }
-		
+
 		local cfg = prepare()
 		cpp.configurationVariables(cfg)
-		
+
 		test.capture [[
 cflags_MyProject_Debug = -UNDEBUG -UOLD_PLATFORM
 cxxflags_MyProject_Debug = -UNDEBUG -UOLD_PLATFORM
@@ -524,11 +524,11 @@ target_MyProject_Debug = MyProject
 		toolset "gcc"
 		files { "main.cpp" }
 		defines { "TEST" }  -- Need at least one flag to test
-		
+
 		local cfg = prepare()
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCxxFlags(cfg, toolset), " ")
-		
+
 		test.istrue(flags:find("-DTEST") ~= nil)
 	end
 
@@ -541,11 +541,11 @@ target_MyProject_Debug = MyProject
 		toolset "gcc"
 		files { "main.cpp" }
 		defines { "DEBUG", "TEST=1" }
-		
+
 		local cfg = prepare()
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCxxFlags(cfg, toolset), " ")
-		
+
 		test.istrue(flags:find("-DDEBUG") ~= nil)
 		test.istrue(flags:find("-DTEST=1") ~= nil)
 	end
@@ -560,11 +560,11 @@ target_MyProject_Debug = MyProject
 		language "C"
 		files { "main.c" }
 		defines { "TEST" }  -- Need at least one flag to test
-		
+
 		local cfg = prepare()
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCFlags(cfg, toolset), " ")
-		
+
 		test.istrue(flags:find("-DTEST") ~= nil)
 	end
 
@@ -578,11 +578,11 @@ target_MyProject_Debug = MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		libdirs { "lib" }
-		
+
 		local cfg = prepare()
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getLdFlags(cfg, toolset), " ")
-		
+
 		test.istrue(flags:find("-Llib") ~= nil)
 	end
 
@@ -592,22 +592,44 @@ target_MyProject_Debug = MyProject
 ---
 
 --
--- Check that prebuild commands generate a prebuild target.
+-- Check that prebuild commands generate a prebuild target on Windows.
 --
 
-	function suite.prebuildEvents_onCommands()
+	function suite.prebuildEvents_onCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prebuildcommands { "echo Building" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		local result = cpp.buildPreBuildEvents(cfg)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = echo Building
+  prebuildcommands = cmd /C "echo Building"
+		]]
+	end
+
+--
+-- Check that prebuild commands generate a prebuild target on Linux.
+--
+
+	function suite.prebuildEvents_onCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		prebuildcommands { "echo Building" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		local result = cpp.buildPreBuildEvents(cfg)
+
+		test.isnotnil(result)
+		test.capture [[
+build bin/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = sh -c 'echo Building'
 		]]
 	end
 
@@ -620,10 +642,10 @@ build bin/Debug/MyProject.prebuild: prebuild
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prebuildmessage "Building project"
-		
+
 		local cfg = prepare()
 		local result = cpp.buildPreBuildEvents(cfg)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prebuild: prebuildmessage
@@ -631,26 +653,52 @@ build bin/Debug/MyProject.prebuild: prebuildmessage
 		]]
 	end
 
+
 --
--- Check that prebuild message and commands combine properly.
+-- Check that prebuild message and commands combine properly on Windows.
 --
 
-	function suite.prebuildEvents_onMessageAndCommands()
+	function suite.prebuildEvents_onMessageAndCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prebuildmessage "Building project"
 		prebuildcommands { "mkdir -p build", "cp file.txt build/" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		local result = cpp.buildPreBuildEvents(cfg)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = echo "Building project" && mkdir -p build && cp file.txt build/
+  prebuildcommands = cmd /C "echo \"Building project\" && mkdir -p build && cp file.txt build/"
 		]]
 	end
+
+
+--
+-- Check that prebuild message and commands combine properly on Linux.
+--
+
+	function suite.prebuildEvents_onMessageAndCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		prebuildmessage "Building project"
+		prebuildcommands { "mkdir -p build", "cp file.txt build/" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		local result = cpp.buildPreBuildEvents(cfg)
+
+		test.isnotnil(result)
+		test.capture [[
+build bin/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = sh -c 'echo "Building project" && mkdir -p build && cp file.txt build/'
+		]]
+	end
+
 
 --
 -- Check that no prebuild events return nil.
@@ -660,10 +708,10 @@ build bin/Debug/MyProject.prebuild: prebuild
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
-		
+
 		local cfg = prepare()
 		local result = cpp.buildPreBuildEvents(cfg)
-		
+
 		test.isnil(result)
 	end
 
@@ -673,25 +721,50 @@ build bin/Debug/MyProject.prebuild: prebuild
 ---
 
 --
--- Check that prelink commands generate a prelink target.
+-- Check that prelink commands generate a prelink target on Windows.
 --
 
-	function suite.prelinkEvents_onCommands()
+	function suite.prelinkEvents_onCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prelinkcommands { "echo Linking" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		cfg._objectFiles = { "obj/Debug/main.o" }
 		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = echo Linking
+  prelinkcommands = cmd /C "echo Linking"
 		]]
 	end
+
+	
+--
+-- Check that prelink commands generate a prelink target on Linux.
+--
+
+	function suite.prelinkEvents_onCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		prelinkcommands { "echo Linking" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cfg._objectFiles = { "obj/Debug/main.o" }
+		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
+
+		test.isnotnil(result)
+		test.capture [[
+build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = sh -c 'echo Linking'
+		]]
+	end
+
 
 --
 -- Check that prelink message generates a prelink target.
@@ -702,11 +775,11 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prelinkmessage "Linking project"
-		
+
 		local cfg = prepare()
 		cfg._objectFiles = { "obj/Debug/main.o" }
 		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prelinkevents: prelinkmessage obj/Debug/main.o
@@ -714,27 +787,54 @@ build bin/Debug/MyProject.prelinkevents: prelinkmessage obj/Debug/main.o
 		]]
 	end
 
+
 --
--- Check that prelink message and commands combine properly.
+-- Check that prelink message and commands combine properly on Windows.
 --
 
-	function suite.prelinkEvents_onMessageAndCommands()
+	function suite.prelinkEvents_onMessageAndCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prelinkmessage "Preparing link"
 		prelinkcommands { "echo prelinking", "ls -la" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		cfg._objectFiles = { "obj/Debug/main.o" }
 		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = echo "Preparing link" && echo prelinking && ls -la
+  prelinkcommands = cmd /C "echo \"Preparing link\" && echo prelinking && ls -la"
 		]]
 	end
+
+
+--
+-- Check that prelink message and commands combine properly on Linux.
+--
+
+	function suite.prelinkEvents_onMessageAndCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		prelinkmessage "Preparing link"
+		prelinkcommands { "echo prelinking", "ls -la" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cfg._objectFiles = { "obj/Debug/main.o" }
+		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
+
+		test.isnotnil(result)
+		test.capture [[
+build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = sh -c 'echo "Preparing link" && echo prelinking && ls -la'
+		]]
+	end
+
 
 --
 -- Check that no prelink events return nil.
@@ -744,12 +844,13 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
-		
+
 		local cfg = prepare()
 		local result = cpp.buildPreLinkEvents(cfg, {})
-		
+
 		test.isnil(result)
 	end
+
 
 --
 -- Check that prelink commands depend on multiple object files.
@@ -760,15 +861,14 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 		kind "ConsoleApp"
 		files { "main.cpp", "foo.cpp", "bar.cpp" }
 		prelinkcommands { "echo Linking" }
-		
+
 		local cfg = prepare()
 		cfg._objectFiles = { "obj/Debug/main.o", "obj/Debug/foo.o", "obj/Debug/bar.o" }
 		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
-		
+
 		test.isnotnil(result)
 		test.capture [[
 build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o obj/Debug/foo.o obj/Debug/bar.o
-  prelinkcommands = echo Linking
 		]]
 	end
 
@@ -778,21 +878,42 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o obj/Debug/foo.
 ---
 
 --
--- Check that postbuild commands generate a postbuild target.
+-- Check that postbuild commands generate a postbuild target on Windows.
 --
 
-	function suite.postbuildEvents_onCommands()
+	function suite.postbuildEvents_onCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		postbuildcommands { "echo Done" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
-		
+
 		test.capture [[
 build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = echo Done
+  postbuildcommands = cmd /C "echo Done"
+		]]
+	end
+
+--
+-- Check that postbuild commands generate a postbuild target on Linux.
+--
+
+	function suite.postbuildEvents_onCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		postbuildcommands { "echo Done" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
+
+		test.capture [[
+build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = sh -c 'echo Done'
 		]]
 	end
 
@@ -805,32 +926,55 @@ build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		postbuildmessage "Build complete"
-		
+
 		local cfg = prepare()
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
-		
+
 		test.capture [[
 build bin/Debug/MyProject.postbuild: postbuildmessage | bin/Debug/MyProject
   postbuildmessage = "Build complete"
 		]]
 	end
 
+
 --
--- Check that postbuild message and commands combine properly.
+-- Check that postbuild message and commands combine properly on Windows.
 --
 
-	function suite.postbuildEvents_onMessageAndCommands()
+	function suite.postbuildEvents_onMessageAndCommands_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		postbuildmessage "Finishing build"
 		postbuildcommands { "cp bin/Debug/MyProject /usr/local/bin/", "chmod +x /usr/local/bin/MyProject" }
-		
+		_TARGET_OS = "windows"
+
 		local cfg = prepare()
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
-		
+
 		test.capture [[
 build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = echo "Finishing build" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject
+  postbuildcommands = cmd /C "echo \"Finishing build\" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject"
+		]]
+	end
+
+--
+-- Check that postbuild message and commands combine properly on Linux.
+--
+
+	function suite.postbuildEvents_onMessageAndCommands_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		postbuildmessage "Finishing build"
+		postbuildcommands { "cp bin/Debug/MyProject /usr/local/bin/", "chmod +x /usr/local/bin/MyProject" }
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
+
+		test.capture [[
+build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = sh -c 'echo "Finishing build" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject'
 		]]
 	end

@@ -147,7 +147,6 @@ end
 build bin/Debug/%s: link obj/Debug/main.o
   ldflags = $ldflags_%s_Debug
 build bin/Debug/%s.postbuild: postbuild | bin/Debug/%s
-  postbuildcommands = echo Done
 		]], targetName, prj.name, prj.name, targetName))
 	end
 

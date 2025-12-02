@@ -1204,6 +1204,26 @@ function m.linkTarget(cfg)
 	end
 end
 
+local function buildcommandstring(cmds, message)
+	local shell = os.shell()
+
+	local allcmds = table.deepcopy(cmds)
+	if message then
+		table.insert(allcmds, 1, 'echo \"' .. message .. '\"')
+	end
+
+	if shell == "posix" then
+		return "sh -c '" .. table.concat(allcmds, " && ") .. "'"
+	elseif shell == "cmd" then
+		local joined = table.concat(allcmds, " && ")
+		-- Escape double quotes
+		joined = joined:gsub('"', '\\"')
+		return "cmd /C \"" .. joined .. "\""
+	else
+		return table.concat(allcmds, " && ")
+	end
+end
+
 function m.buildPreBuildEvents(cfg)
 	local hasMessage = cfg.prebuildmessage ~= nil
 	local hasCommands = #cfg.prebuildcommands > 0
@@ -1225,14 +1245,15 @@ function m.buildPreBuildEvents(cfg)
 		_p("  prebuildmessage = \"%s\"", cfg.prebuildmessage)
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.prebuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands)
+
 		_p("build %s: prebuild%s", prebuildTarget, implicitDeps)
-		_p("  prebuildcommands = %s", cmdStr)
+		_p("  prebuildcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.prebuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = "echo \"" .. cfg.prebuildmessage .. "\" && " .. table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands, cfg.prebuildmessage)
 		_p("build %s: prebuild%s", prebuildTarget, implicitDeps)
-		_p("  prebuildcommands = %s", cmdStr)
+		_p("  prebuildcommands = %s", cmdstr)
 	end
 	
 	return prebuildTarget
@@ -1259,14 +1280,14 @@ function m.buildPreLinkEvents(cfg, objectFiles)
 		_p("  prelinkmessage = \"%s\"", cfg.prelinkmessage)
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.prelinkcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands)
 		_p("build %s: prelink%s", prelinkTarget, objDeps)
-		_p("  prelinkcommands = %s", cmdStr)
+		_p("  prelinkcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.prelinkcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = "echo \"" .. cfg.prelinkmessage .. "\" && " .. table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands, cfg.prelinkmessage)
 		_p("build %s: prelink%s", prelinkTarget, objDeps)
-		_p("  prelinkcommands = %s", cmdStr)
+		_p("  prelinkcommands = %s", cmdstr)
 	end
 	
 	return prelinkTarget
@@ -1287,14 +1308,14 @@ function m.buildPostBuildEvents(cfg, targetPath)
 		_p("  postbuildmessage = \"%s\"", cfg.postbuildmessage)
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.postbuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands)
 		_p("build %s: postbuild | %s", postbuildPhony, targetPath)
-		_p("  postbuildcommands = %s", cmdStr)
+		_p("  postbuildcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.postbuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdStr = "echo \"" .. cfg.postbuildmessage .. "\" && " .. table.concat(commands, " && ")
+		local cmdstr = buildcommandstring(commands, cfg.postbuildmessage)
 		_p("build %s: postbuild | %s", postbuildPhony, targetPath)
-		_p("  postbuildcommands = %s", cmdStr)
+		_p("  postbuildcommands = %s", cmdstr)
 	end
 end
 
