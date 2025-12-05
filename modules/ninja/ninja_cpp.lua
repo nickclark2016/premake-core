@@ -610,6 +610,7 @@ end
 function m.buildFiles(cfg)
 	local tr = project.getsourcetree(cfg.project)
 	local objList = {}
+	local copyList = {}
 	local pchFile = m.buildPch(cfg)
 	
 	local prebuildTarget = m.buildPreBuildEvents(cfg)
@@ -688,7 +689,12 @@ function m.buildFiles(cfg)
 						if filecfg.buildaction == "Copy" then
 							local output = m.buildCopyFile(cfg, node, filecfg)
 							if output then
-								table.insert(objList, output)
+								table.insert(copyList, output)
+								
+								local shouldLink = (filecfg.linkbuildoutputs ~= false)
+								if shouldLink and path.islinkable(output) then
+									table.insert(objList, output)
+								end
 							end
 						else
 							local objFile = m.objectFile(cfg, node, filecfg)
@@ -704,6 +710,7 @@ function m.buildFiles(cfg)
 	}, false, 1)
 	
 	cfg._objectFiles = objList
+	cfg._copyFiles = copyList
 end
 
 function m.objectFile(cfg, node, filecfg)
@@ -1143,6 +1150,17 @@ function m.linkTarget(cfg)
 			implicitDeps = " |"
 		end
 		implicitDeps = implicitDeps .. " " .. prelinkTarget
+	end
+	
+	if cfg._copyFiles and #cfg._copyFiles > 0 then
+		for _, copyFile in ipairs(cfg._copyFiles) do
+			if not table.contains(cfg._objectFiles, copyFile) then
+				if implicitDeps == "" then
+					implicitDeps = " |"
+				end
+				implicitDeps = implicitDeps .. " " .. copyFile
+			end
+		end
 	end
 	
 	local hasPostBuild = #cfg.postbuildcommands > 0 or cfg.postbuildmessage

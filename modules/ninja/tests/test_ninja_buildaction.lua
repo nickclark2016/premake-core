@@ -281,3 +281,196 @@ build obj/Debug/test.o: cxx test.cpp
   cxxflags = $cxxflags_MyProject_Debug
 		]]
 	end
+
+
+---
+-- Buildaction "Copy" link tests
+---
+
+--
+-- Check that non-linkable files with buildaction "Copy" are NOT included in the link inputs
+-- but ARE implicit dependencies of the link step.
+--
+
+	function suite.buildaction_Copy_NotInLinkTarget_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "data.txt" }
+		
+		filter "files:data.txt"
+			buildaction "Copy"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		-- Verify that only the .o file is in _objectFiles, not the copy output (data.txt is not linkable)
+		test.isequal({ "obj/Debug/test.o" }, cfg._objectFiles)
+		
+		-- Verify that the copy file is tracked separately for implicit dependencies
+		test.isequal({ "bin/Debug/data.txt" }, cfg._copyFiles)
+	end
+
+
+--
+-- Check that the link target includes non-linkable copy files as implicit dependencies.
+--
+
+	function suite.buildaction_Copy_LinkTargetExcludesCopyFiles_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "config.ini" }
+		
+		filter "files:config.ini"
+			buildaction "Copy"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		cpp.linkTarget(cfg)
+		
+		-- Capture the full output - config.ini should be an implicit dependency (after |)
+		-- but NOT an explicit link input
+		test.capture [[
+build bin/Debug/config.ini: copy config.ini
+build obj/Debug/test.o: cxx test.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build bin/Debug/MyProject.exe: link obj/Debug/test.o | bin/Debug/config.ini
+  ldflags = $ldflags_MyProject_Debug
+		]]
+	end
+
+
+--
+-- Check that multiple non-linkable copy files are all implicit dependencies.
+--
+
+	function suite.buildaction_Copy_MultipleFilesNotLinked_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "main.cpp", "file1.dat", "file2.dat" }
+		
+		filter "files:*.dat"
+			buildaction "Copy"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		-- Verify only the .o file is in _objectFiles
+		test.isequal({ "obj/Debug/main.o" }, cfg._objectFiles)
+		
+		-- Verify both copy files are tracked separately for implicit dependencies
+		test.isequal({ "bin/Debug/file1.dat", "bin/Debug/file2.dat" }, cfg._copyFiles)
+	end
+
+
+--
+-- Check that linkable copy files (e.g., .obj) ARE linked against by default.
+--
+
+	function suite.buildaction_Copy_LinkableFileIsLinked_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "prebuilt.o" }
+		
+		filter "files:prebuilt.o"
+			buildaction "Copy"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		-- Verify the .o file from source AND the copied .o file are both in _objectFiles
+		-- Order may vary, so check both are present
+		test.istrue(table.contains(cfg._objectFiles, "obj/Debug/test.o"))
+		test.istrue(table.contains(cfg._objectFiles, "bin/Debug/prebuilt.o"))
+		test.isequal(2, #cfg._objectFiles)
+		
+		-- Verify the copy file is also tracked for implicit deps
+		test.isequal({ "bin/Debug/prebuilt.o" }, cfg._copyFiles)
+	end
+
+
+--
+-- Check that linkable copy files can be excluded from linking with linkbuildoutputs.
+--
+
+	function suite.buildaction_Copy_LinkableFileNotLinkedWithFlag_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "prebuilt.o" }
+		
+		filter "files:prebuilt.o"
+			buildaction "Copy"
+			linkbuildoutputs "Off"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		-- Verify only the source .o file is in _objectFiles, not the copied .o
+		test.isequal({ "obj/Debug/test.o" }, cfg._objectFiles)
+		
+		-- Verify the copy file is still tracked for implicit deps
+		test.isequal({ "bin/Debug/prebuilt.o" }, cfg._copyFiles)
+	end
+
+
+--
+-- Check that linkable copy files appear as explicit link inputs (not duplicated as implicit deps)
+--
+
+	function suite.buildaction_Copy_LinkableFileOutput_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "prebuilt.o" }
+		
+		filter "files:prebuilt.o"
+			buildaction "Copy"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		cpp.linkTarget(cfg)
+		
+		-- Linkable copy file appears as explicit input, not as implicit dependency
+		-- (no duplication - it's either in explicit inputs OR implicit deps, not both)
+		test.capture [[
+build bin/Debug/prebuilt.o: copy prebuilt.o
+build obj/Debug/test.o: cxx test.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build bin/Debug/MyProject.exe: link bin/Debug/prebuilt.o obj/Debug/test.o
+  ldflags = $ldflags_MyProject_Debug
+		]]
+	end
+
+
+--
+-- Check that linkable copy files with linkbuildoutputs off appear as implicit deps only
+--
+
+	function suite.buildaction_Copy_LinkableFileAsImplicitDep_GCC()
+		toolset "gcc"
+		language "C++"
+		files { "test.cpp", "prebuilt.o" }
+		
+		filter "files:prebuilt.o"
+			buildaction "Copy"
+			linkbuildoutputs "Off"
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		cpp.linkTarget(cfg)
+		
+		-- Linkable copy file with linkbuildoutputs off appears as implicit dependency only
+		test.capture [[
+build bin/Debug/prebuilt.o: copy prebuilt.o
+build obj/Debug/test.o: cxx test.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build bin/Debug/MyProject.exe: link obj/Debug/test.o | bin/Debug/prebuilt.o
+  ldflags = $ldflags_MyProject_Debug
+		]]
+	end
+
