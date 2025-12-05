@@ -308,7 +308,9 @@ function m.getCFlags(cfg, toolset)
 	local toolFlags = toolset.getcflags(cfg)
 	flags = table.join(flags, toolFlags)
 	
+	local escaper = p.escaper(p.quote)
 	local defines = toolset.getdefines(cfg.defines)
+	p.escaper(escaper)
 	flags = table.join(flags, defines)
 
 	local undefines = toolset.getundefines(cfg.undefines)
@@ -338,7 +340,9 @@ function m.getFileCFlags(cfg, filecfg, toolset)
 	end
 	
 	local allDefines = table.join(cfg.defines or {}, filecfg.defines or {})
+	local escaper = p.escaper(p.quote)
 	local defines = toolset.getdefines(allDefines)
+	p.escaper(escaper)
 	flags = table.join(flags, defines)
 
 	local allUndefines = table.join(cfg.undefines or {}, filecfg.undefines or {})
@@ -368,7 +372,9 @@ function m.getCxxFlags(cfg, toolset)
 	local toolFlags = toolset.getcxxflags(cfg)
 	flags = table.join(flags, toolFlags)
 	
+	local escaper = p.escaper(p.quote)
 	local defines = toolset.getdefines(cfg.defines)
+	p.escaper(escaper)
 	flags = table.join(flags, defines)
 
 	local undefines = toolset.getundefines(cfg.undefines)
@@ -398,7 +404,9 @@ function m.getFileCxxFlags(cfg, filecfg, toolset)
 	end
 	
 	local allDefines = table.join(cfg.defines or {}, filecfg.defines or {})
+	local escaper = p.escaper(p.quote)
 	local defines = toolset.getdefines(allDefines)
+	p.escaper(escaper)
 	flags = table.join(flags, defines)
 
 	local allUndefines = table.join(cfg.undefines or {}, filecfg.undefines or {})

@@ -56,7 +56,7 @@
 build obj/Debug/main.o: cxx main.cpp
   cxxflags = $cxxflags_MyProject_Debug
 build obj/Debug/special.o: cxx special.cpp
-  cxxflags = -DMAIN_DEFINE -DSPECIAL_DEFINE
+  cxxflags = -D"MAIN_DEFINE" -D"SPECIAL_DEFINE"
 		]]
 	end
 
@@ -82,7 +82,7 @@ build obj/Debug/special.o: cxx special.cpp
 build obj/Debug/main.obj: cxx main.cpp
   cxxflags = $cxxflags_MyProject_Debug
 build obj/Debug/special.obj: cxx special.cpp
-  cxxflags = /MD /EHsc /DMAIN_DEFINE /DSPECIAL_DEFINE
+  cxxflags = /MD /EHsc /D"MAIN_DEFINE" /D"SPECIAL_DEFINE"
 		]]
 	end
 
@@ -231,7 +231,7 @@ build obj/Debug/special.o: cxx special.cpp
 build obj/Debug/main.o: cxx main.cpp
   cxxflags = $cxxflags_MyProject_Debug
 build obj/Debug/special.o: cxx special.cpp
-  cxxflags = -DMAIN_DEFINE -DSPECIAL_DEFINE -Iinclude -Ispecial/include -O3
+  cxxflags = -D"MAIN_DEFINE" -D"SPECIAL_DEFINE" -Iinclude -Ispecial/include -O3
 		]]
 	end
 
@@ -260,7 +260,7 @@ build obj/Debug/special.o: cxx special.cpp
 build obj/Debug/main.obj: cxx main.cpp
   cxxflags = $cxxflags_MyProject_Debug
 build obj/Debug/special.obj: cxx special.cpp
-  cxxflags = /MD /EHsc /DMAIN_DEFINE /DSPECIAL_DEFINE /Iinclude /Ispecial/include /O2
+  cxxflags = /MD /EHsc /D"MAIN_DEFINE" /D"SPECIAL_DEFINE" /Iinclude /Ispecial/include /O2
 		]]
 	end
 
@@ -290,7 +290,7 @@ build obj/Debug/special.obj: cxx special.cpp
 build obj/Debug/main.o: cxx main.cpp
   cxxflags = $cxxflags_MyProject_Debug
 build obj/Debug/special.o: cxx special.cpp
-  cxxflags = -DMAIN_DEFINE -UUNWANTED_DEFINE
+  cxxflags = -D"MAIN_DEFINE" -UUNWANTED_DEFINE
 		]]
 	end
 

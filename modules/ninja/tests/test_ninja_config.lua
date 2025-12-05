@@ -112,8 +112,8 @@ target_MyProject_Debug = MyProject
 		cpp.configurationVariables(cfg)
 
 		test.capture [[
-cflags_MyProject_Debug = -DDEBUG -DPLATFORM_LINUX -DHELLO="HELLO WORLD" -DVALUE=with_paren()
-cxxflags_MyProject_Debug = -DDEBUG -DPLATFORM_LINUX -DHELLO="HELLO WORLD" -DVALUE=with_paren()
+cflags_MyProject_Debug = -D"DEBUG" -D"PLATFORM_LINUX" -D"HELLO=\"HELLO WORLD\"" -D"VALUE=with_paren()"
+cxxflags_MyProject_Debug = -D"DEBUG" -D"PLATFORM_LINUX" -D"HELLO=\"HELLO WORLD\"" -D"VALUE=with_paren()"
 ldflags_MyProject_Debug = -s
 objdir_MyProject_Debug = obj/Debug
 targetdir_MyProject_Debug = bin/Debug
@@ -134,8 +134,8 @@ target_MyProject_Debug = MyProject
 		cpp.configurationVariables(cfg)
 
 		test.capture [[
-cflags_MyProject_Debug = /MD /DDEBUG /DPLATFORM_WINDOWS
-cxxflags_MyProject_Debug = /MD /EHsc /DDEBUG /DPLATFORM_WINDOWS
+cflags_MyProject_Debug = /MD /D"DEBUG" /D"PLATFORM_WINDOWS"
+cxxflags_MyProject_Debug = /MD /EHsc /D"DEBUG" /D"PLATFORM_WINDOWS"
 ldflags_MyProject_Debug = /NOLOGO
 objdir_MyProject_Debug = obj/Debug
 targetdir_MyProject_Debug = bin/Debug
@@ -156,12 +156,56 @@ target_MyProject_Debug = MyProject.exe
 		cpp.configurationVariables(cfg)
 
 		test.capture [[
-cflags_MyProject_Debug = -DDEBUG -DPLATFORM_MACOS
-cxxflags_MyProject_Debug = -DDEBUG -DPLATFORM_MACOS
+cflags_MyProject_Debug = -D"DEBUG" -D"PLATFORM_MACOS"
+cxxflags_MyProject_Debug = -D"DEBUG" -D"PLATFORM_MACOS"
 ldflags_MyProject_Debug = -Wl,-x
 objdir_MyProject_Debug = obj/Debug
 targetdir_MyProject_Debug = bin/Debug
 target_MyProject_Debug = MyProject
+
+		]]
+	end
+
+
+	function suite.configVars_withDefines_withSpaces_Msc()
+		toolset "msc"
+		_OS = "Windows"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		defines { 'HELLO="HELLO WORLD"' }
+
+		local cfg = prepare()
+		cpp.configurationVariables(cfg)
+
+		test.capture [[
+cflags_MyProject_Debug = /MD /D"HELLO=\"HELLO WORLD\""
+cxxflags_MyProject_Debug = /MD /EHsc /D"HELLO=\"HELLO WORLD\""
+ldflags_MyProject_Debug = /NOLOGO
+objdir_MyProject_Debug = obj/Debug
+targetdir_MyProject_Debug = bin/Debug
+target_MyProject_Debug = MyProject.exe
+
+		]]
+	end
+
+
+	function suite.configVars_WithDefines_withParents_Msc()
+		toolset "msc"
+		_OS = "Windows"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		defines { "VALUE=with_paren()"}
+
+		local cfg = prepare()
+		cpp.configurationVariables(cfg)
+
+		test.capture [[
+cflags_MyProject_Debug = /MD /D"VALUE=with_paren()"
+cxxflags_MyProject_Debug = /MD /EHsc /D"VALUE=with_paren()"
+ldflags_MyProject_Debug = /NOLOGO
+objdir_MyProject_Debug = obj/Debug
+targetdir_MyProject_Debug = bin/Debug
+target_MyProject_Debug = MyProject.exe
 
 		]]
 	end
@@ -529,7 +573,7 @@ target_MyProject_Debug = MyProject
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCxxFlags(cfg, toolset), " ")
 
-		test.istrue(flags:find("-DTEST") ~= nil)
+		test.istrue(flags:find("-D\"TEST\"") ~= nil)
 	end
 
 
@@ -546,8 +590,8 @@ target_MyProject_Debug = MyProject
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCxxFlags(cfg, toolset), " ")
 
-		test.istrue(flags:find("-DDEBUG") ~= nil)
-		test.istrue(flags:find("-DTEST=1") ~= nil)
+		test.istrue(flags:find("-D\"DEBUG\"") ~= nil)
+		test.istrue(flags:find("-D\"TEST=1\"") ~= nil)
 	end
 
 
@@ -565,7 +609,7 @@ target_MyProject_Debug = MyProject
 		local toolset = p.tools.gcc
 		local flags = table.concat(cpp.getCFlags(cfg, toolset), " ")
 
-		test.istrue(flags:find("-DTEST") ~= nil)
+		test.istrue(flags:find("-D\"TEST\"") ~= nil)
 	end
 
 
