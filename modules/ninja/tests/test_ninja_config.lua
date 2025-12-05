@@ -607,8 +607,8 @@ target_MyProject_Debug = MyProject
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = cmd /C "echo Building"
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = cmd /C "echo Building && type nul > \"obj/Debug/MyProject.prebuild\""
 		]]
 	end
 
@@ -628,19 +628,21 @@ build bin/Debug/MyProject.prebuild: prebuild
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = sh -c 'echo Building'
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = sh -c 'echo Building && touch "obj/Debug/MyProject.prebuild"'
 		]]
 	end
 
+
 --
--- Check that prebuild message generates a prebuild target.
+-- Check that prebuild message generated a prebuild target on Windows
 --
 
-	function suite.prebuildEvents_onMessage()
+function suite.prebuildEvents_onMessage_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
+		_TARGET_OS = "windows"
 		prebuildmessage "Building project"
 
 		local cfg = prepare()
@@ -648,8 +650,30 @@ build bin/Debug/MyProject.prebuild: prebuild
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prebuild: prebuildmessage
-  prebuildmessage = "Building project"
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = cmd /C "echo \"Building project\" && type nul > \"obj/Debug/MyProject.prebuild\""
+		]]
+	end
+
+
+--
+-- Check that prebuild message generates a prebuild target on Linux.
+--
+
+	function suite.prebuildEvents_onMessage_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		_TARGET_OS = "linux"
+		prebuildmessage "Building project"
+
+		local cfg = prepare()
+		local result = cpp.buildPreBuildEvents(cfg)
+
+		test.isnotnil(result)
+		test.capture [[
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = sh -c 'echo "Building project" && touch "obj/Debug/MyProject.prebuild"'
 		]]
 	end
 
@@ -671,8 +695,8 @@ build bin/Debug/MyProject.prebuild: prebuildmessage
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = cmd /C "echo \"Building project\" && mkdir -p build && cp file.txt build/"
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = cmd /C "echo \"Building project\" && mkdir -p build && cp file.txt build/ && type nul > \"obj/Debug/MyProject.prebuild\""
 		]]
 	end
 
@@ -694,8 +718,8 @@ build bin/Debug/MyProject.prebuild: prebuild
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prebuild: prebuild
-  prebuildcommands = sh -c 'echo "Building project" && mkdir -p build && cp file.txt build/'
+build obj/Debug/MyProject.prebuild: prebuild
+  prebuildcommands = sh -c 'echo "Building project" && mkdir -p build && cp file.txt build/ && touch "obj/Debug/MyProject.prebuild"'
 		]]
 	end
 
@@ -737,8 +761,8 @@ build bin/Debug/MyProject.prebuild: prebuild
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = cmd /C "echo Linking"
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = cmd /C "echo Linking && type nul > \"obj/Debug/MyProject.prelinkevents\""
 		]]
 	end
 
@@ -760,21 +784,22 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = sh -c 'echo Linking'
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = sh -c 'echo Linking && touch "obj/Debug/MyProject.prelinkevents"'
 		]]
 	end
 
 
 --
--- Check that prelink message generates a prelink target.
+-- Check that prelink message generates a prelink target on Windows.
 --
 
-	function suite.prelinkEvents_onMessage()
+	function suite.prelinkEvents_onMessage_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		prelinkmessage "Linking project"
+		_TARGET_OS = "windows"
 
 		local cfg = prepare()
 		cfg._objectFiles = { "obj/Debug/main.o" }
@@ -782,8 +807,30 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelinkmessage obj/Debug/main.o
-  prelinkmessage = "Linking project"
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = cmd /C "echo \"Linking project\" && type nul > \"obj/Debug/MyProject.prelinkevents\""
+		]]
+	end
+
+--
+-- Check that prelink message generates a prelink target on Linux.
+--
+
+	function suite.prelinkEvents_onMessage_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		prelinkmessage "Linking project"
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cfg._objectFiles = { "obj/Debug/main.o" }
+		local result = cpp.buildPreLinkEvents(cfg, cfg._objectFiles)
+
+		test.isnotnil(result)
+		test.capture [[
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = sh -c 'echo "Linking project" && touch "obj/Debug/MyProject.prelinkevents"'
 		]]
 	end
 
@@ -806,8 +853,8 @@ build bin/Debug/MyProject.prelinkevents: prelinkmessage obj/Debug/main.o
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = cmd /C "echo \"Preparing link\" && echo prelinking && ls -la"
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = cmd /C "echo \"Preparing link\" && echo prelinking && ls -la && type nul > \"obj/Debug/MyProject.prelinkevents\""
 		]]
 	end
 
@@ -830,8 +877,8 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
-  prelinkcommands = sh -c 'echo "Preparing link" && echo prelinking && ls -la'
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
+  prelinkcommands = sh -c 'echo "Preparing link" && echo prelinking && ls -la && touch "obj/Debug/MyProject.prelinkevents"'
 		]]
 	end
 
@@ -868,7 +915,7 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o
 
 		test.isnotnil(result)
 		test.capture [[
-build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o obj/Debug/foo.o obj/Debug/bar.o
+build obj/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o obj/Debug/foo.o obj/Debug/bar.o
 		]]
 	end
 
@@ -892,8 +939,8 @@ build bin/Debug/MyProject.prelinkevents: prelink obj/Debug/main.o obj/Debug/foo.
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
 
 		test.capture [[
-build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = cmd /C "echo Done"
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = cmd /C "echo Done && type nul > \"obj/Debug/MyProject.postbuild\""
 		]]
 	end
 
@@ -912,27 +959,48 @@ build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
 
 		test.capture [[
-build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = sh -c 'echo Done'
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = sh -c 'echo Done && touch "obj/Debug/MyProject.postbuild"'
 		]]
 	end
 
 --
--- Check that postbuild message generates a postbuild target.
+-- Check that postbuild message generates a postbuild target on Windows.
 --
 
-	function suite.postbuildEvents_onMessage()
+	function suite.postbuildEvents_onMessage_Windows()
 		toolset "gcc"
 		kind "ConsoleApp"
 		files { "main.cpp" }
 		postbuildmessage "Build complete"
+		_TARGET_OS = "windows"
 
 		local cfg = prepare()
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
 
 		test.capture [[
-build bin/Debug/MyProject.postbuild: postbuildmessage | bin/Debug/MyProject
-  postbuildmessage = "Build complete"
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = cmd /C "echo \"Build complete\" && type nul > \"obj/Debug/MyProject.postbuild\""
+		]]
+	end
+
+--
+-- Check that postbuild message generates a postbuild target on Linux.
+--
+
+	function suite.postbuildEvents_onMessage_Linux()
+		toolset "gcc"
+		kind "ConsoleApp"
+		files { "main.cpp" }
+		postbuildmessage "Build complete"
+		_TARGET_OS = "linux"
+
+		local cfg = prepare()
+		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
+
+		test.capture [[
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = sh -c 'echo "Build complete" && touch "obj/Debug/MyProject.postbuild"'
 		]]
 	end
 
@@ -953,8 +1021,8 @@ build bin/Debug/MyProject.postbuild: postbuildmessage | bin/Debug/MyProject
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
 
 		test.capture [[
-build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = cmd /C "echo \"Finishing build\" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject"
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = cmd /C "echo \"Finishing build\" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject && type nul > \"obj/Debug/MyProject.postbuild\""
 		]]
 	end
 
@@ -974,7 +1042,7 @@ build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
 		cpp.buildPostBuildEvents(cfg, "bin/Debug/MyProject")
 
 		test.capture [[
-build bin/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
-  postbuildcommands = sh -c 'echo "Finishing build" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject'
+build obj/Debug/MyProject.postbuild: postbuild | bin/Debug/MyProject
+  postbuildcommands = sh -c 'echo "Finishing build" && cp bin/Debug/MyProject /usr/local/bin/ && chmod +x /usr/local/bin/MyProject && touch "obj/Debug/MyProject.postbuild"'
 		]]
 	end

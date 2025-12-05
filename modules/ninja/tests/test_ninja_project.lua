@@ -146,8 +146,8 @@ end
 		test.capture(string.format([[
 build bin/Debug/%s: link obj/Debug/main.o
   ldflags = $ldflags_%s_Debug
-build bin/Debug/%s.postbuild: postbuild | bin/Debug/%s
-		]], targetName, prj.name, prj.name, targetName))
+build obj/Debug/%s/%s.postbuild: postbuild | bin/Debug/%s
+		]], targetName, prj.name, prj.name, prj.name, targetName))
 	end
 
 

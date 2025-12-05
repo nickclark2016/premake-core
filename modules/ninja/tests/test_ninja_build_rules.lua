@@ -409,22 +409,6 @@ rule prebuild
 
 
 --
--- Check the pre-build message rule.
---
-
-	function suite.prebuildMessageRule()
-		local cfg = prepare()
-		cpp.prebuildmessagerule(cfg)
-		test.capture [[
-rule prebuildmessage
-  command = echo $prebuildmessage
-  description = Pre-build message: $prebuildmessage
-
-		]]
-	end
-
-
---
 -- Check the pre-link commands rule.
 --
 
@@ -441,22 +425,6 @@ rule prelink
 
 
 --
--- Check the pre-link message rule.
---
-
-	function suite.prelinkMessageRule()
-		local cfg = prepare()
-		cpp.prelinkmessagerule(cfg)
-		test.capture [[
-rule prelinkmessage
-  command = echo $prelinkmessage
-  description = Pre-link message: $prelinkmessage
-
-		]]
-	end
-
-
---
 -- Check the post-build commands rule.
 --
 
@@ -467,22 +435,6 @@ rule prelinkmessage
 rule postbuild
   command = $postbuildcommands
   description = Running post-build commands
-
-		]]
-	end
-
-
---
--- Check the post-build message rule.
---
-
-	function suite.postbuildMessageRule()
-		local cfg = prepare()
-		cpp.postbuildmessagerule(cfg)
-		test.capture [[
-rule postbuildmessage
-  command = echo $postbuildmessage
-  description = Post-build message: $postbuildmessage
 
 		]]
 	end

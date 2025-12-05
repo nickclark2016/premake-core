@@ -48,11 +48,8 @@ function m.rules(prj)
 			m.pchrules(cfg, toolset)
 			m.copyrules(cfg, toolset)
 			m.prebuildcommandsrule(cfg, toolset)
-			m.prebuildmessagerule(cfg, toolset)
 			m.prelinkcommandsrule(cfg, toolset)
-			m.prelinkmessagerule(cfg, toolset)
 			m.postbuildcommandsrule(cfg, toolset)
-			m.postbuildmessagerule(cfg, toolset)
 			m.customcommand(cfg, toolset)
 			m.customrules(cfg, toolset, prj)
 			
@@ -187,13 +184,6 @@ function m.prebuildcommandsrule(cfg, toolset)
 	_p("")
 end
 
-function m.prebuildmessagerule(cfg, toolset)
-	_p("rule prebuildmessage")
-	_p("  command = echo $prebuildmessage")
-	_p("  description = Pre-build message: $prebuildmessage")
-	_p("")
-end
-
 function m.prelinkcommandsrule(cfg, toolset)
 	_p("rule prelink")
 	_p("  command = $prelinkcommands")
@@ -201,24 +191,10 @@ function m.prelinkcommandsrule(cfg, toolset)
 	_p("")
 end
 
-function m.prelinkmessagerule(cfg, toolset)
-	_p("rule prelinkmessage")
-	_p("  command = echo $prelinkmessage")
-	_p("  description = Pre-link message: $prelinkmessage")
-	_p("")
-end
-
 function m.postbuildcommandsrule(cfg, toolset)
 	_p("rule postbuild")
 	_p("  command = $postbuildcommands")
 	_p("  description = Running post-build commands")
-	_p("")
-end
-
-function m.postbuildmessagerule(cfg, toolset)
-	_p("rule postbuildmessage")
-	_p("  command = echo $postbuildmessage")
-	_p("  description = Post-build message: $postbuildmessage")
 	_p("")
 end
 
@@ -1204,12 +1180,27 @@ function m.linkTarget(cfg)
 	end
 end
 
-local function buildcommandstring(cmds, message)
+local function touchCommand(file)
+	local shell = os.shell()
+	if shell == "posix" then
+		return "touch \"" .. file .. "\""
+	elseif shell == "cmd" then
+		return "type nul > \"" .. file .. "\""
+	else
+		return ""
+	end
+end
+
+local function buildCommandString(cmds, message, touchFile)
 	local shell = os.shell()
 
 	local allcmds = table.deepcopy(cmds)
 	if message then
 		table.insert(allcmds, 1, 'echo \"' .. message .. '\"')
+	end
+
+	if touchFile then
+		table.insert(allcmds, touchCommand(touchFile))
 	end
 
 	if shell == "posix" then
@@ -1232,26 +1223,27 @@ function m.buildPreBuildEvents(cfg)
 		return nil
 	end
 	
-	local targetPath = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.buildtarget.name
-	local prebuildTarget = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.project.name .. ".prebuild"
-	
+	local prebuildTarget = path.getrelative(cfg.workspace.location, cfg.objdir) .. "/" .. cfg.project.name .. ".prebuild"
+
 	local implicitDeps = ""
 	if cfg._dependsOnTarget then
 		implicitDeps = " | " .. cfg._dependsOnTarget
 	end
 	
 	if hasMessage and not hasCommands then
-		_p("build %s: prebuildmessage%s", prebuildTarget, implicitDeps)
-		_p("  prebuildmessage = \"%s\"", cfg.prebuildmessage)
+		local cmdstr = buildCommandString({}, cfg.prebuildmessage, prebuildTarget)
+
+		_p("build %s: prebuild%s", prebuildTarget, implicitDeps)
+		_p("  prebuildcommands = %s", cmdstr)
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.prebuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands)
+		local cmdstr = buildCommandString(commands, nil, prebuildTarget)
 
 		_p("build %s: prebuild%s", prebuildTarget, implicitDeps)
 		_p("  prebuildcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.prebuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands, cfg.prebuildmessage)
+		local cmdstr = buildCommandString(commands, cfg.prebuildmessage, prebuildTarget)
 		_p("build %s: prebuild%s", prebuildTarget, implicitDeps)
 		_p("  prebuildcommands = %s", cmdstr)
 	end
@@ -1267,8 +1259,7 @@ function m.buildPreLinkEvents(cfg, objectFiles)
 		return nil
 	end
 	
-	local targetPath = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.buildtarget.name
-	local prelinkTarget = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.project.name .. ".prelinkevents"
+	local prelinkTarget = path.getrelative(cfg.workspace.location, cfg.objdir) .. "/" .. cfg.project.name .. ".prelinkevents"
 	
 	local objDeps = ""
 	if objectFiles and #objectFiles > 0 then
@@ -1276,16 +1267,20 @@ function m.buildPreLinkEvents(cfg, objectFiles)
 	end
 	
 	if hasMessage and not hasCommands then
-		_p("build %s: prelinkmessage%s", prelinkTarget, objDeps)
-		_p("  prelinkmessage = \"%s\"", cfg.prelinkmessage)
+		local cmdstr = buildCommandString({}, cfg.prelinkmessage, prelinkTarget)
+
+		_p("build %s: prelink%s", prelinkTarget, objDeps)
+		_p("  prelinkcommands = %s", cmdstr)
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.prelinkcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands)
+		local cmdstr = buildCommandString(commands, nil, prelinkTarget)
+
 		_p("build %s: prelink%s", prelinkTarget, objDeps)
 		_p("  prelinkcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.prelinkcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands, cfg.prelinkmessage)
+		local cmdstr = buildCommandString(commands, cfg.prelinkmessage, prelinkTarget)
+
 		_p("build %s: prelink%s", prelinkTarget, objDeps)
 		_p("  prelinkcommands = %s", cmdstr)
 	end
@@ -1301,19 +1296,20 @@ function m.buildPostBuildEvents(cfg, targetPath)
 		return
 	end
 	
-	local postbuildPhony = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.project.name .. ".postbuild"
+	local postbuildPhony = path.getrelative(cfg.workspace.location, cfg.objdir) .. "/" .. cfg.project.name .. ".postbuild"
 	
 	if hasMessage and not hasCommands then
-		_p("build %s: postbuildmessage | %s", postbuildPhony, targetPath)
-		_p("  postbuildmessage = \"%s\"", cfg.postbuildmessage)
+		local cmdstr = buildCommandString({}, cfg.postbuildmessage, postbuildPhony)
+		_p("build %s: postbuild | %s", postbuildPhony, targetPath)
+		_p("  postbuildcommands = %s", cmdstr) 
 	elseif hasCommands and not hasMessage then
 		local commands = os.translateCommandsAndPaths(cfg.postbuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands)
+		local cmdstr = buildCommandString(commands, nil, postbuildPhony)
 		_p("build %s: postbuild | %s", postbuildPhony, targetPath)
 		_p("  postbuildcommands = %s", cmdstr)
 	else
 		local commands = os.translateCommandsAndPaths(cfg.postbuildcommands, cfg.project.basedir, cfg.project.location)
-		local cmdstr = buildcommandstring(commands, cfg.postbuildmessage)
+		local cmdstr = buildCommandString(commands, cfg.postbuildmessage, postbuildPhony)
 		_p("build %s: postbuild | %s", postbuildPhony, targetPath)
 		_p("  postbuildcommands = %s", cmdstr)
 	end
@@ -1329,7 +1325,7 @@ function m.buildTargets(prj)
 		
 		local hasPostBuild = #cfg.postbuildcommands > 0 or cfg.postbuildmessage
 		if hasPostBuild then
-			local postbuildTarget = path.getrelative(cfg.workspace.location, cfg.buildtarget.directory) .. "/" .. cfg.project.name .. ".postbuild"
+			local postbuildTarget = path.getrelative(cfg.workspace.location, cfg.objdir) .. "/" .. cfg.project.name .. ".postbuild"
 			_p("build %s: phony %s", cfgName, postbuildTarget)
 		else
 			_p("build %s: phony %s", cfgName, targetPath)
