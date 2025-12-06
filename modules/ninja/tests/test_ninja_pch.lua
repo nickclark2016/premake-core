@@ -367,7 +367,7 @@ build obj/Debug/main.o: cxx main.cpp | obj/Debug/pch.h.gch
 		
 		test.isequal("obj/Debug/stdafx.pch", pchFile)
 		test.capture [[
-build obj/Debug/stdafx.pch obj/Debug/stdafx.obj: pch stdafx.cpp
+build obj/Debug/stdafx.pch | obj/Debug/stdafx.obj: pch stdafx.cpp
   pchheader = stdafx.h
   objdir = obj/Debug
   cflags = $cxxflags_MyProject_Debug

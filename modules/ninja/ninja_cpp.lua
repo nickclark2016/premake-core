@@ -572,7 +572,7 @@ function m.buildPch(cfg)
 		
 		local wksRelPchPath = path.getrelative(cfg.workspace.location, path.join(cfg.project.location, pchPath))
 		
-		_p("build %s %s: pch %s%s", wksRelPchPath, objFile, relPath, implicitDeps)
+		_p("build %s | %s: pch %s%s", wksRelPchPath, objFile, relPath, implicitDeps)
 		_p("  pchheader = %s", cfg.pchheader)
 		_p("  objdir = %s", objdir)
 		if cfg.language == "C" then
@@ -708,6 +708,13 @@ function m.buildFiles(cfg)
 			end
 		end
 	}, false, 1)
+
+	-- If there is a PCH and this is MSVC, make sure the PCH obj is in the object list
+	if pchFile and ninja.gettoolset(cfg) == p.tools.msc then
+		local objdir = path.getrelative(cfg.workspace.location, cfg.objdir)
+		local pchObjFile = objdir .. "/" .. path.getbasename(cfg.pchsource) .. ".obj"
+		table.insert(objList, 1, pchObjFile)
+	end
 	
 	cfg._objectFiles = objList
 	cfg._copyFiles = copyList
