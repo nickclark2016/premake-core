@@ -1543,12 +1543,12 @@
 		settings['SYSTEM_HEADER_SEARCH_PATHS'] = systemincludedirs
 
 		for i,v in ipairs(cfg.libdirs) do
-			cfg.libdirs[i] = p.project.getrelative(cfg.project, cfg.libdirs[i])
+			cfg.libdirs[i] = p.quoted(p.project.getrelative(cfg.project, cfg.libdirs[i]))
 		end
 		for i,v in ipairs(cfg.syslibdirs) do
-			cfg.syslibdirs[i] = p.project.getrelative(cfg.project, cfg.syslibdirs[i])
+			cfg.syslibdirs[i] = p.quoted(p.project.getrelative(cfg.project, cfg.syslibdirs[i]))
 		end
-		settings['LIBRARY_SEARCH_PATHS'] = table.join (cfg.libdirs, cfg.syslibdirs)
+		settings['LIBRARY_SEARCH_PATHS'] = table.join(cfg.libdirs, cfg.syslibdirs)
 
 		for i,v in ipairs(cfg.frameworkdirs) do
 			cfg.frameworkdirs[i] = p.project.getrelative(cfg.project, cfg.frameworkdirs[i])
