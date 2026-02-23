@@ -879,3 +879,39 @@ end
 		prepare()
 		test.isequal({ "/MD", "/Z7" }, msc.getcflags(cfg))
 	end
+
+	function suite.cflags_onDynamicDebuggingOn()
+		dynamicdebugging "On"
+		prepare()
+		test.contains("/dynamicdeopt", msc.getcflags(cfg))
+	end
+
+	function suite.cxxflags_onDynamicDebuggingOn()
+		dynamicdebugging "On"
+		prepare()
+		test.contains("/dynamicdeopt", msc.getcxxflags(cfg))
+	end
+
+	function suite.cflags_onDynamicDebuggingOff()
+		dynamicdebugging "Off"
+		prepare()
+		test.excludes("/dynamicdeopt", msc.getcflags(cfg))
+	end
+
+	function suite.cxxflags_onDynamicDebuggingOff()
+		dynamicdebugging "Off"
+		prepare()
+		test.excludes("/dynamicdeopt", msc.getcxxflags(cfg))
+	end
+
+	function suite.linkerflags_onDynamicDebuggingOn()
+		dynamicdebugging "On"
+		prepare()
+		test.contains("/dynamicdeopt", msc.getldflags(cfg))
+	end
+
+	function suite.linkerflags_onDynamicDebuggingOff()
+		dynamicdebugging "Off"
+		prepare()
+		test.excludes("/dynamicdeopt", msc.getldflags(cfg))
+	end

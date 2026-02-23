@@ -83,6 +83,9 @@
 			StdCall = "/Gz",
 			VectorCall = "/Gv",
 		},
+		dynamicdebugging = {
+			On = "/dynamicdeopt",
+		},
 		intrinsics = {
 			On = "/Oi",
 		},
@@ -366,7 +369,10 @@
 		},
 		symbols = {
 			On = "/DEBUG"
-		}
+		},
+		dynamicdebugging = {
+			On = "/dynamicdeopt",
+		},
 	}
 
 	msc.librarianFlags = {

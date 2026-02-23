@@ -127,6 +127,7 @@ module.exports = {
 						'dotnetframework',
 						'dotnetsdk',
 						'dpiawareness',
+						'dynamicdebugging',
 						'editandcontinue',
 						'editorintegration',
 						'embed',
