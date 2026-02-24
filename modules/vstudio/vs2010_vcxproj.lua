@@ -597,6 +597,7 @@
 			m.useStandardPreprocessor,
 			m.enableModules,
 			m.buildStlModules,
+			m.useDynamicDebugging,
 		}
 
 		if cfg.kind == p.STATICLIB then
@@ -795,6 +796,7 @@
 				m.generateDebugInformation,
 				m.optimizeReferences,
 				m.linkTimeCodeGeneration,
+				m.useDynamicDebugging,
 			}
 		else
 			return {
@@ -804,6 +806,7 @@
 				m.optimizeReferences,
 				m.linkTimeCodeGeneration,
 				m.additionalDependencies,
+				m.useDynamicDebugging,
 				m.additionalLibraryDirectories,
 				m.importLibrary,
 				m.entryPointSymbol,
@@ -1978,6 +1981,17 @@
 		-- If there are no links and dependencies should be inherited, the tag doesn't have to be generated.
 		if #links > 0 or additional == "" then
 			m.element("AdditionalDependencies", nil, "%s%s", links, additional)
+		end
+	end
+
+
+	function m.useDynamicDebugging(cfg, explicit)
+		if cfg.dynamicdebugging and _ACTION >= "vs2022" then
+			if cfg.dynamicdebugging == p.ON then
+				m.element("UseDynamicDebugging", nil, "true")
+			elseif cfg.dynamicdebugging == p.OFF then
+				m.element("UseDynamicDebugging", nil, "false")
+			end
 		end
 	end
 

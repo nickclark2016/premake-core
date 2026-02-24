@@ -1485,6 +1485,17 @@
 	function(value)
 	end)
 
+	api.register {
+		name = "dynamicdebugging",
+		scope = "config",
+		kind = "string",
+		allowed = {
+			"Default",
+			"On",
+			"Off"
+		}
+	}
+
 -----------------------------------------------------------------------------
 --
 -- Field name aliases for backward compatibility
