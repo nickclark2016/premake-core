@@ -885,6 +885,7 @@
 				m.treatLinkerWarningAsErrors,
 				m.targetMachine,
 				m.additionalLinkOptions,
+				m.useDynamicDebugging,
 			}
 		else
 			return {}
@@ -3088,7 +3089,11 @@
 
 	function m.optimizeReferences(cfg)
 		if config.isOptimizedBuild(cfg) then
-			m.element("EnableCOMDATFolding", nil, "true")
+			if cfg.dynamicdebugging == p.ON then
+				m.element("EnableCOMDATFolding", nil, "false")
+			else
+				m.element("EnableCOMDATFolding", nil, "true")
+			end
 			m.element("OptimizeReferences", nil, "true")
 		end
 	end
