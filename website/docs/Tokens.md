@@ -103,6 +103,7 @@ The available tokens, and their replacements:
 |------------|---------------------------------------------|-----------------------|
 | {CHDIR}    | chdir {args}                                | cd {args}             |
 | {COPYFILE} | copy /B /Y {args}                           | cp -f {args}          |
+| {COPYFILEIFNEWER} | xcopy /D /Y {args}*                   | cp -u {args}          |
 | {COPYDIR}  | xcopy /Q /E /Y /I {args}                    | cp -rf {args}         |
 | {DELETE}   | del {args}                                  | rm -rf {args}         |
 | {ECHO}     | echo {args}                                 | echo {args}           |

@@ -597,6 +597,9 @@
 			copyfile = function(v)
 				return "cp -f " .. path.normalize(v)
 			end,
+			copyfileifnewer = function(v)
+				return "cp -u " .. path.normalize(v)
+			end,
 			copydir = function(v)
 				return "cp -rf " .. path.normalize(v)
 			end,
@@ -674,6 +677,43 @@
 				-- A trailing * will suppress the prompt but requires the file extensions be the same length.
 				-- Just use COPY instead, it actually works.
 				return "copy /B /Y " .. v
+			end,
+			copyfileifnewer = function(v)
+				-- A trailing * on the destination suppresses xcopy's
+				-- locale-dependent "File or Directory?" prompt (the old
+				-- "echo F |" hack only works on English Windows).
+				--
+				-- A trailing / on the destination marks it as a
+				-- directory; the source filename is appended so xcopy
+				-- sees a file-to-file copy.
+
+				-- Check for trailing / before normalize strips it.
+				local orig_dst = v:match('%S+%s*$') or ''
+				local orig_dst_bare = orig_dst:gsub('"', '')
+				local dst_is_dir = orig_dst_bare:sub(-1) == '/'
+
+				v = path.translate(path.normalize(v), "\\")
+
+				if dst_is_dir then
+					local src = string.match(v, '^".-"') or string.match(v, '^%S+')
+					local src_name = path.getname(src:gsub('"', ''))
+					-- Append source filename inside or outside closing quote.
+					-- Strip any trailing separator that survived translate.
+					if v:sub(-1) == '"' then
+						local base = v:sub(1, -2):gsub('[/\\]$', '')
+						v = base .. '\\' .. src_name .. '"'
+					else
+						v = v:gsub('[/\\]$', '') .. '\\' .. src_name
+					end
+				end
+
+				-- Put * inside the closing quote when the path is quoted.
+				if v:sub(-1) == '"' then
+					v = v:sub(1, -2) .. '*"'
+				else
+					v = v .. "*"
+				end
+				return "xcopy /D /Y " .. v
 			end,
 			copydir = function(v)
 				v = path.translate(path.normalize(v))

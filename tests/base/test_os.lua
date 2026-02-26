@@ -361,6 +361,37 @@
 	end
 
 --
+-- os.translateCommand() COPYFILEIFNEWER tests
+--
+	function suite.translateCommand_windowsCopyFileIfNewer()
+		test.isequal('xcopy /D /Y a b*', os.translateCommands('{COPYFILEIFNEWER} a b', "windows"))
+	end
+
+	function suite.translateCommand_windowsCopyFileIfNewerWithSpaces()
+		test.isequal('xcopy /D /Y "a a" "b b*"', os.translateCommands('{COPYFILEIFNEWER} "a a" "b b"', "windows"))
+	end
+
+	function suite.translateCommand_windowsCopyFileIfNewerWithPaths()
+		test.isequal('xcopy /D /Y "src\\dir\\file.txt" "dst\\dir\\file.txt*"', os.translateCommandsAndPaths('{COPYFILEIFNEWER} %[src/dir/file.txt] %[dst/dir/file.txt]', '.', '.', "windows"))
+	end
+
+	function suite.translateCommand_windowsCopyFileIfNewerDirDst()
+		test.isequal('xcopy /D /Y "src\\Core.dll" "dst\\outdir\\Core.dll*"', os.translateCommandsAndPaths('{COPYFILEIFNEWER} %[src/Core.dll] %[dst/outdir/]', '.', '.', "windows"))
+	end
+
+	function suite.translateCommand_windowsCopyFileIfNewerDirDstQuoted()
+		test.isequal('xcopy /D /Y "src dir\\Core.dll" "dst dir\\Core.dll*"', os.translateCommandsAndPaths('{COPYFILEIFNEWER} %[src dir/Core.dll] %[dst dir/]', '.', '.', "windows"))
+	end
+
+	function suite.translateCommand_posixCopyFileIfNewer()
+		test.isequal('cp -u a b', os.translateCommands('{COPYFILEIFNEWER} a b', "posix"))
+	end
+
+	function suite.translateCommand_posixCopyFileIfNewerWithSpaces()
+		test.isequal('cp -u "a a" "b b"', os.translateCommands('{COPYFILEIFNEWER} "a a" "b b"', "posix"))
+	end
+
+--
 -- os.translateCommand() LINKDIR/LINKFILE tests
 --
 	function suite.translateCommand_windowsLinkDir()
