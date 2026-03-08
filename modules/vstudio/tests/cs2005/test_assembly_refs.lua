@@ -133,26 +133,6 @@
 -- NoCopyLocal flag has been set for the configuration.
 --
 
-	function suite.markedPrivate_onNoCopyLocal_ViaFlag()
-		links { "../Libraries/nunit.framework" }
-		flags { "NoCopyLocal" }
-		prepare()
-		test.capture [[
-	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<Reference Include="nunit.framework">
-			<HintPath>..\Libraries\nunit.framework.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<Reference Include="nunit.framework">
-			<HintPath>..\Libraries\nunit.framework.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-		]]
-	end
-
 	function suite.markedPrivate_onNoCopyLocal_ViaAPI()
 		links { "../Libraries/nunit.framework" }
 		allowcopylocal "Off"
@@ -306,36 +286,7 @@ end
 --
 
 if http ~= nil and _OPTIONS["test-all"] then
-	function suite.nugetPackages_onNoCopyLocal_ViaFlag()
-		dotnetframework "2.0"
-		nuget { "NUnit:3.6.1" }
-		flags { "NoCopyLocal" }
-		prepare()
-		test.capture [[
-	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<Reference Include="nunit.framework">
-			<HintPath>packages\NUnit.3.6.1\lib\net20\nunit.framework.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="NUnit.System.Linq">
-			<HintPath>packages\NUnit.3.6.1\lib\net20\NUnit.System.Linq.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<Reference Include="nunit.framework">
-			<HintPath>packages\NUnit.3.6.1\lib\net20\nunit.framework.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="NUnit.System.Linq">
-			<HintPath>packages\NUnit.3.6.1\lib\net20\NUnit.System.Linq.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-		]]
-	end
-
-	function suite.nugetPackages_onNoCopyLocal_ViaAPI()
+	function suite.nugetPackages_onAllowCopyLocalOff()
 		dotnetframework "2.0"
 		nuget { "NUnit:3.6.1" }
 		allowcopylocal "Off"
