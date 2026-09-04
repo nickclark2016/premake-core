@@ -2,7 +2,7 @@
 -- ninja_cpp.lua
 -- Define the ninja cpp functionality
 -- Author: Nick Clark
--- Copyright (c) 2025 Jess Perkins and the Premake project
+-- Copyright (c) 2025-2026 Jess Perkins and the Premake project
 --
 
 local p = premake
@@ -351,27 +351,12 @@ local function getCompileAsFlag(filecfg, toolset)
 	return nil
 end
 
-local function fileConfigProxy(cfg, filecfg)
-	if not filecfg then
-		return cfg
-	end
-	return setmetatable({}, {
-		__index = function(t, k)
-			local v = filecfg[k]
-			if v ~= nil then
-				return v
-			end
-			return cfg[k]
-		end
-	})
-end
-
 function m.getFileCFlags(cfg, filecfg, toolset)
 	local flags = {}
 	toolset = toolset or ninja.gettoolset(cfg)
 	local compileasFlag = getCompileAsFlag(filecfg, toolset)
 
-	local proxy = fileConfigProxy(cfg, filecfg)
+	local proxy = p.fileconfig.proxy(cfg, filecfg)
 	local toolFlags = toolset.getcflags(proxy)
 	if compileasFlag then
 		toolFlags = table.filter(toolFlags, function(flag) return flag ~= compileasFlag end)
@@ -439,7 +424,7 @@ function m.getFileCxxFlags(cfg, filecfg, toolset)
 	toolset = toolset or ninja.gettoolset(cfg)
 	local compileasFlag = getCompileAsFlag(filecfg, toolset)
 
-	local proxy = fileConfigProxy(cfg, filecfg)
+	local proxy = p.fileconfig.proxy(cfg, filecfg)
 	local toolFlags = toolset.getcxxflags(proxy)
 	if compileasFlag then
 		toolFlags = table.filter(toolFlags, function(flag) return flag ~= compileasFlag end)
