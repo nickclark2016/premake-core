@@ -561,3 +561,99 @@ build obj/Debug/special.o: cc_gcc special.c
   cflags = -include unistd.h -include extra.h
 		]]
 	end
+
+
+--
+-- Check that project-level enablewarnings does not cause files to emit inline flags.
+--
+
+	function suite.enablewarnings_project_level_uses_variable_MSVC()
+		toolset "msc"
+		_OS = "Windows"
+		files { "main.cpp", "other.cpp" }
+		enablewarnings { "4061", "4062" }
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		test.capture [[
+build obj/Debug/main.obj: cxx_msc main.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build obj/Debug/other.obj: cxx_msc other.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+		]]
+	end
+
+
+--
+-- Check that per-file enablewarnings merges with project enablewarnings.
+--
+
+	function suite.perfile_enablewarnings_override_GCC()
+		toolset "gcc"
+		_OS = "Linux"
+		files { "main.cpp", "special.cpp" }
+		enablewarnings { "switch" }
+		
+		filter "files:special.cpp"
+			enablewarnings { "shadow" }
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		test.capture [[
+build obj/Debug/main.o: cxx_gcc main.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build obj/Debug/special.o: cxx_gcc special.cpp
+  cxxflags = -Wswitch -Wshadow
+		]]
+	end
+
+
+--
+-- Check that project-level fatalwarnings does not cause files to emit inline flags.
+--
+
+	function suite.fatalwarnings_project_level_uses_variable_MSVC()
+		toolset "msc"
+		_OS = "Windows"
+		files { "main.cpp", "other.cpp" }
+		fatalwarnings "All"
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		test.capture [[
+build obj/Debug/main.obj: cxx_msc main.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build obj/Debug/other.obj: cxx_msc other.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+		]]
+	end
+
+
+--
+-- Check that per-file fatalwarnings merges with project fatalwarnings.
+--
+
+	function suite.perfile_fatalwarnings_override_GCC()
+		toolset "gcc"
+		_OS = "Linux"
+		files { "main.cpp", "special.cpp" }
+		fatalwarnings { "return-type" }
+		
+		filter "files:special.cpp"
+			fatalwarnings { "uninitialized" }
+		filter {}
+		
+		local cfg = prepare()
+		cpp.buildFiles(cfg)
+		
+		test.capture [[
+build obj/Debug/main.o: cxx_gcc main.cpp
+  cxxflags = $cxxflags_MyProject_Debug
+build obj/Debug/special.o: cxx_gcc special.cpp
+  cxxflags = -Werror=return-type -Werror=uninitialized
+		]]
+	end
